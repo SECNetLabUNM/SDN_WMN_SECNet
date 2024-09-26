@@ -1,8 +1,9 @@
-from scapy.all import *
 import netifaces
 import os
+import threading
+import time
 
-#from scapy.layers.l2 import Ether
+from scapy.all import *
 from scapy.layers.dhcp import *
 from scapy.layers.inet import *
 
@@ -13,15 +14,25 @@ def response_dhcp_discover():
 def create_dhcp_discover_packet(wifi_interface):
     print("creating the packet")
     src_mac_address = get_if_hwaddr(wifi_interface)
+    x_id = 0x01234567
 
     # Make ethernet unavailable b/c we are using WiFi
-    ethernet = Ether(dst='ff:ff:ff:ff:ff:ff', src=src_mac_address, type=0x800)
-    ip = IP(src='0.0.0.0', dst='255.255.255.255')
-    udp = UDP(sport=68, dport=67)
+    ethernet = Ether(dst='ff:ff:ff:ff:ff:ff',
+                     src=src_mac_address,
+                     type=0x800)
+    # Source and destination IP, source is assumed to be 0 empty at first
+    ip = IP(src='0.0.0.0',
+            dst='255.255.255.255')
+    # UDP ports
+    udp = UDP(sport=68,
+              dport=67)
     # xid is the transaction ID and should be the same on all the networks
-    #
-    bootp = BOOTP(chaddr=src_mac_address, ciaddr='0.0.0.0', xid=0x01020304, flags=1)
-    dhcp = DHCP(options=[("message-type", "discover"), "end"])
+    bootp = BOOTP(chaddr=src_mac_address,
+                  ciaddr='0.0.0.0',
+                  xid=x_id, flags=1)
+    dhcp = DHCP(options=[("message-type", "discover"),
+                         "end"])
+
     discovery_packet = ethernet / ip / udp / bootp / dhcp
 
     return discovery_packet
