@@ -8,6 +8,8 @@ from scapy.all import *
 from scapy.layers.dhcp import *
 from scapy.layers.inet import *
 
+from Code.Packet_Passing.DHCP_Server import server_ip
+
 stop_event = Event()
 
 def get_wifi_interface():
@@ -22,7 +24,7 @@ def get_wifi_interface():
 # Clients WiFi interafce
 wifi_interface = get_wifi_interface()
 # Clients MAC
-src_mac_address = get_if_hwaddr(wifi_interface)
+client_mac_address = get_if_hwaddr(wifi_interface)
 # Clients id for DHCP
 x_id = 0x01234567
 
@@ -32,7 +34,7 @@ def create_dhcp_discover_packet():
 
     # Make ethernet unavailable b/c we are using WiFi
     ethernet = Ether(dst='ff:ff:ff:ff:ff:ff',
-                     src=src_mac_address,
+                     src=client_mac_address,
                      type=0x800)
     # Source and destination IP, source is assumed to be 0 empty at first
     ip = IP(src='0.0.0.0',
@@ -41,7 +43,7 @@ def create_dhcp_discover_packet():
     udp = UDP(sport=68,
               dport=67)
     # xid is the transaction ID and should be the same on all the networks
-    bootp = BOOTP(chaddr=src_mac_address,
+    bootp = BOOTP(chaddr=client_mac_address,
                   ciaddr='0.0.0.0',
                   xid=x_id, flags=1)
     dhcp = DHCP(options=[("message-type", "discover"),
@@ -63,13 +65,13 @@ def send_dhcp_discover():
 
 def create_dhcp_request(offer_packet):
     print("Making DHCP request packet")
+    # This is the IP offered by the server
     offered_ip = offer_packet[BOOTP].yiaddr
+    # This is the IP of the server or the server IP itself because the IP = ID
     server_id = [opt[1] for opt in offer_packet[DHCP].options if opt[0] == 'server_id'][0]
-    print(offered_ip)
-    print(server_id)
     # Make ethernet unavailable b/c we are using WiFi
     ethernet = Ether(dst='ff:ff:ff:ff:ff:ff',
-                     src=src_mac_address,
+                     src=client_mac_address,
                      type=0x800)
     # Source and destination IP, source is assumed to be 0 empty at first
     ip = IP(src='0.0.0.0',
@@ -77,13 +79,17 @@ def create_dhcp_request(offer_packet):
     # UDP ports
     udp = UDP(sport=68,
               dport=67)
+
     # xid is the transaction ID and should be the same on all the networks
-    bootp = BOOTP(chaddr=src_mac_address,
+    bootp = BOOTP(chaddr=client_mac_address,
                   xid=x_id,
                   flags=1)
+
+    # DHCP message
     dhcp = DHCP(options=[("message-type", "request"),
+                         ('client_id', b'\x01' + mac2str(client_mac_address)),
                          ("requested_addr", offered_ip),
-                         ("server_id", ),
+                         ("server_id", server_id),
                          "end"])
 
     discovery_packet = ethernet / ip / udp / bootp / dhcp
@@ -96,7 +102,8 @@ def handle_dhcp_offer(packet):
             print(f"Received offer from server{packet.src}")
             stop_event.set()
             request_packet = create_dhcp_request(packet)
-            #sendp(request_packet, iface=wifi_interface)
+            sendp(request_packet, iface=wifi_interface)
+            print(f"Sent request packet from client {client_mac_address}")
 
 def sniff_DHCP_offers():
     sniff(filter="arp or (udp and (port 67 or 68))", prn=handle_dhcp_offer, store=0)
