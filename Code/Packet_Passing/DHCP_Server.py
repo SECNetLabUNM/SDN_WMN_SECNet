@@ -6,7 +6,7 @@ from scapy.layers.l2 import Ether
 import socket
 import netifaces
 
-# This is to get the current computer running the server IP, dont think about it
+# This is to get the current computer running the server IP, don't think about it
 def get_local_ip():
     try:
         # Create a temporary socket to an external address (e.g., Google's public DNS server)
@@ -46,7 +46,8 @@ def dhcp_discovery_handler(packet):
             print(f"DHCP acknowledgement packet received {packet.src}")
             send_dhcp_acknowledge(packet)
 
-def send_dhcp_offer(packet):
+# This function is to create a DHCP offer packet for the sender
+def create_dhcp_offer(packet):
     client_mac = packet.src
     client_xid = packet[BOOTP].xid
 
@@ -75,8 +76,13 @@ def send_dhcp_offer(packet):
                          ("subnet_mask", "255.255.255.0"),
                          "end"])
     offer_packet = ethernet / ip / udp / bootp / dhcp
+
+    return offer_packet
+
+def send_dhcp_offer(packet):
+    offer_packet = create_dhcp_offer(packet)
     sendp(offer_packet, iface=wifi_interface)
-    print(f"Server sent DHCP offer to {client_mac}!\n")
+    print(f"Server sent DHCP offer to {packet.src}!\n")
 
 def send_dhcp_acknowledge(packet):
     print("DHCP ACk packet detected\n")
@@ -88,7 +94,7 @@ def start_dhcp_server():
     sniff(filter="arp or (udp and (port 67 or 68))", prn=dhcp_discovery_handler, store=0)
 
 if __name__ == "__main__":
-    if not wifi_interface:
-        print("No wifi interface, server will not start!")
-    else:
+    if wifi_interface:
         start_dhcp_server()
+    else:
+        print("No wifi interface, server will not start!")
