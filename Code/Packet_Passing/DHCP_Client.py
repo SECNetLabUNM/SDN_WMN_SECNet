@@ -98,12 +98,19 @@ def handle_dhcp_offer(packet):
             request_packet = create_dhcp_request(packet)
             #sendp(request_packet, iface=wifi_interface)
 
+def sniff_DHCP_offers():
+    sniff(filter="arp or (udp and (port 67 or 68))", prn=handle_dhcp_offer, store=0)
+
 def start_dhcp_client():
     print("Starting DHCP Client")
-    send_dhcp_discover()
     discovery_thread = threading.Thread(target=send_dhcp_discover)
     discovery_thread.start()
-    sniff(filter="arp or (udp and (port 67 or 68))", prn=handle_dhcp_offer, store=0)
+
+    sniff_thread = threading.Thread(target=sniff_DHCP_offers())
+    sniff_thread.start()
+
+    discovery_thread.join()
+    sniff_thread.join()
 
 if __name__ == "__main__":
     if wifi_interface:
