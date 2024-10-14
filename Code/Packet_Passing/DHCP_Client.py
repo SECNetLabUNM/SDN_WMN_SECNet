@@ -19,12 +19,7 @@ def get_wifi_interface():
             print(f"Error checking interface {interface}: {e}")
             print("Fail to start DHCP client")
 
-# Clients WiFi interafce
 wifi_interface = get_wifi_interface()
-# Clients MAC
-src_mac_address = get_if_hwaddr(wifi_interface)
-# Clients id for DHCP
-x_id = 0x01234567
 
 class DHCP_Client():
     def __init__(self):
@@ -33,6 +28,7 @@ class DHCP_Client():
         self._clientMAC = get_if_hwaddr(self._wifi_interface)
         self._serverIP = None
         self._serverMAC = None
+        # Clients id for DHCP
         self._client_xID = 0x01234567
 
     # DHCP packet
@@ -43,6 +39,7 @@ class DHCP_Client():
         ethernet = Ether(dst='ff:ff:ff:ff:ff:ff',
                          src=self._clientMAC,
                          type=0x800)
+
         # Source and destination IP, source is assumed to be 0 empty at first
         ip = IP(src='0.0.0.0',
                 dst='255.255.255.255')
@@ -75,17 +72,22 @@ class DHCP_Client():
 
     def create_dhcp_request(self, offer_packet):
         print("Making DHCP request packet")
+
         # This is the IP offered by the server
         self._clientIP = offer_packet[BOOTP].yiaddr
+
         # This is the IP of the server or the server IP itself because the IP = ID
         self._serverIP = [opt[1] for opt in offer_packet[DHCP].options if opt[0] == 'server_id'][0]
+
         # Make ethernet unavailable b/c we are using WiFi
         ethernet = Ether(dst='ff:ff:ff:ff:ff:ff',
-                         src=src_mac_address,
+                         src=self._clientMAC,
                          type=0x800)
+
         # Source and destination IP, source is assumed to be 0 empty at first
         ip = IP(src='0.0.0.0',
                 dst='255.255.255.255')
+
         # UDP ports
         udp = UDP(sport=68,
                   dport=67)
@@ -120,6 +122,7 @@ class DHCP_Client():
 
 def start_dhcp_client():
     print("Starting DHCP Client")
+
     dhcp_client = DHCP_Client()
     discovery_thread = threading.Thread(target=dhcp_client.send_dhcp_discover)
     discovery_thread.start()
