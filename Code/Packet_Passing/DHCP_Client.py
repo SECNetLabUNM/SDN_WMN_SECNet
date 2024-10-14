@@ -93,8 +93,8 @@ class DHCP_Client():
                   dport=67)
 
         # xid is the transaction ID and should be the same on all the networks
-        bootp = BOOTP(chaddr=src_mac_address,
-                      xid=x_id,
+        bootp = BOOTP(chaddr=self._clientMAC,
+                      xid=self._client_xID,
                       flags=1)
 
         # DHCP message
@@ -115,7 +115,7 @@ class DHCP_Client():
                 stop_event.set()
                 request_packet = self.create_dhcp_request(packet)
                 sendp(request_packet, iface=wifi_interface)
-                print(f"Sent request packet from client {src_mac_address}")
+                print(f"Sent request packet from client {self._clientMAC}")
 
     def sniff_DHCP_offers(self):
         sniff(filter="arp or (udp and (port 67 or 68))", prn=self.handle_dhcp_offer, store=0)
