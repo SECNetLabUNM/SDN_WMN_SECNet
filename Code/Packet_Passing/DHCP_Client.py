@@ -111,11 +111,11 @@ class DHCP_Client():
     def handle_dhcp_offer(self, packet):
         if packet.haslayer(DHCP):
             if packet[DHCP] and packet[DHCP].options[0][1] == 2:
-                print(f"Received offer from server{packet.src}")
+                print(f"Received offer from server: {packet.src}")
                 stop_event.set()
                 request_packet = self.create_dhcp_request(packet)
                 sendp(request_packet, iface=wifi_interface)
-                print(f"Sent request packet from client {self._clientMAC}")
+                print(f"Sent request packet from client: {self._clientMAC}")
 
     def sniff_DHCP_offers(self):
         sniff(filter="arp or (udp and (port 67 or 68))", prn=self.handle_dhcp_offer, store=0)
