@@ -4,6 +4,7 @@ import threading
 from threading import Event
 import time
 
+#from requests.packages import target
 from scapy.all import *
 from scapy.layers.dhcp import *
 from scapy.layers.inet import *
@@ -30,6 +31,7 @@ class DHCP_Client():
         self._serverMAC = None
         # Clients id for DHCP
         self._client_xID = 0x01234567
+        self._relay_mode = False
 
     # DHCP packet
     def create_dhcp_discover_packet(self):
@@ -116,9 +118,31 @@ class DHCP_Client():
                 request_packet = self.create_dhcp_request(packet)
                 sendp(request_packet, iface=wifi_interface)
                 print(f"Sent request packet from client: {self._clientMAC}")
+                self._relay_mode = True
 
     def sniff_DHCP_offers(self):
         sniff(filter="arp or (udp and (port 67 or 68))", prn=self.handle_dhcp_offer, store=0)
+
+    def dhcp_discovery_relay_handler(self, packet):
+        if packet.haslayer(DHCP):
+            # If DHCP discover, send to the server handler
+            if packet[DHCP] and packet[DHCP].options[0][1] == 1:
+                print(f"DHCP discovery packet received from {packet.src}")
+                #self.send_dhcp_offer(packet)
+
+            # If DHCP request, send to server handler
+            elif packet[DHCP] and packet[DHCP].options[0][1] == 3:
+                print(f"DHCP acknowledgement packet received {packet.src}")
+                #self.send_dhcp_acknowledge(packet)
+
+
+    def relay_handler(self):
+        sniff(filter="arp or (udp and (port 67 or 68))", prn=self.handle_dhcp_offer, store=0)
+        return
+
+    @property
+    def relay_mode(self):
+        return self._relay_mode
 
 def start_dhcp_client():
     print("Starting DHCP Client")
@@ -132,6 +156,11 @@ def start_dhcp_client():
 
     discovery_thread.join()
     sniff_thread.join()
+
+    if (dhcp_client._relay_mode):
+        relay_thread = threading.Thread(target=dhcp_client.relay_handler)
+        relay_thread.start()
+        relay_thread.join()
 
 if __name__ == "__main__":
     if wifi_interface:
