@@ -22,132 +22,203 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 theme_green = "#2ca373"
 
-client = []
-
 # This is the data frame that is effected by the node switches (sub/unsub is here)
 class DataFrame(ctk.CTkFrame):
-    def __init__(self, master):
+    def __init__(self, master, client_dct):
         super().__init__(master)
-        self.updated = False
+        self._client_dct = client_dct
+        self.temp_XYZ_text = {}
+        self._current_device_info = {}
         self.subscribeXYZ_pressed = False
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(1, weight=1,)
         self.grid_columnconfigure(2, weight=1)
         self.grid_columnconfigure(3, weight=1)
-        self._device_info = []
-        self.state = []
-        self.current_index = 0
         paddingX = 20
         paddingY = 20
 
-        self.title = ctk.CTkLabel(master=self, text="ID: NONE", fg_color="gray30", corner_radius=6)
-        self.title.grid(row=0, column=0, padx=paddingX, pady=paddingY, sticky="w")
+        self.titleID = ctk.CTkLabel(master=self,
+                                    text="ID: NONE",
+                                    fg_color="gray30",
+                                    corner_radius=6)
 
-        self.subXYZ_bt = ctk.CTkButton(master=self, text="Subscribe XYZ",
-                                       fg_color="gray30", command=self.subscribeXYZ_handler)
-        self.subXYZ_bt.grid(row=0, column=1, padx=0, pady=paddingY, sticky="w")
+        self.titleID.grid(row=0, column=0, padx=(paddingX, 5), pady=paddingY, sticky="we")
 
-        self.clearXYZ_bt = ctk.CTkButton(master=self, text="Clear", command=self.clearXYZ_handler)
-        self.clearXYZ_bt.grid(row=0, column=2, padx=paddingX, pady=paddingY, sticky="w")
+        self.titleMAC = ctk.CTkLabel(master=self,
+                                     text="MAC: NONE",
+                                     fg_color="gray30",
+                                     corner_radius=6)
+
+        self.titleMAC.grid(row=0, column=1, padx=5, pady=paddingY, sticky="we")
+
+        self.titleIP = ctk.CTkLabel(master=self,
+                                    text="IP: NONE",
+                                    fg_color="gray30",
+                                    corner_radius=6)
+
+        self.titleIP.grid(row=0, column=2, padx=(5, paddingX), pady=paddingY, sticky="we")
+
+        self.subXYZ_bt = ctk.CTkButton(master=self,
+                                       text="Request XYZ",
+                                       fg_color="gray30",
+                                       command=self.subscribeXYZ_handler)
+
+        self.subXYZ_bt.grid(row=1, column=0, padx=(paddingX, 5), sticky="we")
+
+        self.clearXYZ_bt = ctk.CTkButton(master=self,
+                                         text="Clear XYZ",
+                                         command=self.clearXYZ_handler)
+
+        self.clearXYZ_bt.grid(row=1, column=1, padx=5, sticky="we")
+
+        self.statusXYZ_bt = ctk.CTkLabel(master=self,
+                                         text="Unsubscribed",
+                                         fg_color="firebrick1",
+                                         corner_radius=6)
+
+        self.statusXYZ_bt.grid(row=1, column=2, padx=(5, paddingX), sticky="we")
 
         self.text_box = ctk.CTkFrame(master=self)
-        self.text_box.grid(row=1, column=0, padx=paddingX, columnspan=4, sticky="we")
+        self.text_box.grid(row=2, column=0, padx=paddingX, pady=paddingY, columnspan=4, sticky="we")
 
         # Dummy widget to control height
         self.text_label = ctk.CTkLabel(master=self.text_box, text="", height=35)  # Set the height you need
         self.text_label.pack(fill="both", expand=True)
 
-    def contained(self, device_id):
-        for i in self.state:
-            if device_id in i:
-                return True
-        return False
+    def print_client_dct(self):
+        print("From data frame")
+        for clientID, sub_dict_client in self._client_dct.items():
+            print(f"{clientID}: {sub_dict_client['data']}")
 
-    def update_client_ID(self, device_info):
-        self._device_info = device_info
-        self.updated = True
-        for i, c in enumerate(client):
-            if c[0] == self._device_info[0]:
-                self.current_index = i
-                break
+    def update_client_ID(self, device_info, client_dct, first_click):
+        if first_click:
+            self.subscribeXYZ_pressed = False
+            self.text_label.configure(text="")
 
-        self.title.configure(text=f"ID: {self._device_info[0]}")
+        self._current_device_info = device_info
+        self._client_dct = client_dct
+        self.titleID.configure(text=f"ID: {self._current_device_info['ID']}")
+        self.titleMAC.configure(text=f"MAC: {self._current_device_info['MAC']}")
+        self.titleIP.configure(text=f"IP: {self._current_device_info['IP']}")
         self.update_widget_XYZ()
 
-    # Client packet:
-    # Index 0: device ID
-    # Index 1: device neighbors
-    # Index 2: device XYZ
-    # Index 3: index when added, this will be changed on the server side
     def subscribeXYZ_handler(self):
-        global client
-
+        device_ID = self._current_device_info["ID"]
         if not self.subscribeXYZ_pressed:
             self.subscribeXYZ_pressed = True
-            client[self.current_index][2][0] = True
+            self._client_dct[device_ID]["data"]["XYZ_Tuple"][0] = True
         else:
             self.subscribeXYZ_pressed = False
-            client[self.current_index][2][0] = False
+            self._client_dct[device_ID]["data"]["XYZ_Tuple"] = [False]
+        self.print_client_dct()
 
-        # Making sure we do not click on an empty frame
-        if len(self._device_info) > 0:
-            self.update_widget_XYZ()
+        self.update_widget_XYZ()
 
     def update_widget_XYZ(self):
-        device_status = self._device_info[2][0]
-        if device_status:
+        if self.subscribeXYZ_pressed:
             self.subXYZ_bt.configure(fg_color=theme_green)
-            self.text_label.configure(text=f"Subbed {self._device_info[0]}")
+            self.statusXYZ_bt.configure(text="Subscribed", fg_color=theme_green)
         else:
             self.subXYZ_bt.configure(fg_color="firebrick1")
-            self.text_label.configure(text=f"Unsub {self._device_info[0]}")
+            self.statusXYZ_bt.configure(text="Unsubscribed", fg_color="firebrick1")
 
-    def return_device_state(self):
-        return self._device_info
+        self.display_XYZ()
 
-    def return_updates(self):
-        if self.updated:
-            self.updated = False
-            return True
-        else:
-            return self.updated
+    def display_XYZ(self):
+        if self._current_device_info:
+            status = self._current_device_info["XYZ_Tuple"][0]
+            has_data = len(self._current_device_info["XYZ_Tuple"])
+            clientID = self._current_device_info["ID"]
+
+            if status and (has_data > 1):
+                self.temp_XYZ_text[clientID] = {"data": self._current_device_info['XYZ_Tuple'][1]}
+                self.text_label.configure(text=f"{self.temp_XYZ_text[clientID]['data']}")
+            elif not status:
+                if len(self.temp_XYZ_text) > 0 and clientID in self.temp_XYZ_text:
+                        self.text_label.configure(text=f"{self.temp_XYZ_text[clientID]['data']}")
+                else:
+                    self.text_label.configure(text=f"")
+            print("From DISPLAY XYZ:")
+            print(self.temp_XYZ_text)
 
     def clearXYZ_handler(self):
         self.text_label.configure(text=f"")
 
 # This is the frame class of the switches / nodes themselves
+# The left section with the green buttons
 class SwitchFrame(ctk.CTkScrollableFrame):
-    def __init__(self, master, data_frame):
+    def __init__(self, master, data_frame, client_dct):
         super().__init__(master)
-        self._client = []
+        self._client_dct = client_dct
         self._data_frame = data_frame
+        self._first_click_tracker = {}
+        self.client_btn = {}
         self.grid_columnconfigure(0, weight=1)
         self.title = ctk.CTkButton(master=self, text="B.A.T.M.A.N Switches", fg_color="gray30", corner_radius=6)
-        self.title.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ew")
-        self.client_btns = []
+        self.title.grid(column=0, padx=10, pady=(10, 0), sticky="ew")
 
-    def button_action(self, _client):
-        self._data_frame.update_client_ID(_client)
+    def button_action(self, client_id):
+        client_data = self._client_dct[client_id]["data"]
+        f_clk = self._first_click_tracker[client_id]["f_clk"]
 
-    def update_client_buttons(self, _client_list):
-        self._client = _client_list
-        # Clears old buttons
-        for w in self.winfo_children():
-            if isinstance(w, ctk.CTkButton) and w != self.title:
-                w.destroy()
+        if f_clk:
+            self._first_click_tracker[client_id]["f_clk"] = False
 
-        if len(self.client_btns) > 0:
-            self.client_btns.clear()
+        self._data_frame.update_client_ID(client_data, self._client_dct, f_clk)
 
-        # Create new buttons
-        index = 0
-        for i in self._client:
-            btn = ctk.CTkButton(master=self, text=f"{i[0]}", corner_radius=6,
-                                command=lambda i=i: self.button_action(i))
-            btn.grid(row=index + 1, column=0, padx=10, pady=(10, 0), sticky="ew")
-            self.client_btns.append(btn)
-            index += 1
+    # This method adds newly arrived clients and creates a button
+    # It uses dictionaries to quickly search for the ID
+    def add_client_button(self, client_information):
+        clientID = client_information["ID"]
 
+        if clientID not in self._client_dct:
+            btn = ctk.CTkButton(master=self,
+                                text=f"{clientID}",
+                                corner_radius=6)
+            btn.grid(column=0, padx=10, pady=(10, 0), sticky="ew")
+
+            '''
+            This is an anonymous function
+            lambda argument: expression
+            Anon functions are nameless functions that are basically one lined functions 
+            that spits out a result once activated
+            '''
+            btn.configure(command=lambda x=clientID: self.button_action(x))
+
+            """ ATTENTION: This is how the dictionary is made """
+            """ dict{"ID from the switch": "btn": the buttons, "data": data from switch} """
+            """ client_dct[ID]["data"][your choice] """
+            self.client_btn[clientID] = {"btn": btn}
+            self._client_dct[clientID] = {"data": client_information}
+            self._first_click_tracker[clientID] = {"f_clk": True}
+
+    def update_client_button(self, client_information):
+        clientID = client_information["ID"]
+
+        if clientID in self._client_dct:
+            server_neighbor_tuple = self._client_dct[clientID]["data"]["Neighbor_Tuple"][0]
+            client_neighbor_tuple = client_information["Neighbor_Tuple"][0]
+            server_XYZ_tuple = self._client_dct[clientID]["data"]["XYZ_Tuple"][0]
+            client_XYZ_tuple = client_information["XYZ_Tuple"][0]
+
+            if server_neighbor_tuple and client_neighbor_tuple:
+                self._client_dct[clientID]["data"]["Neighbor_Tuple"] = client_information["Neighbor_Tuple"]
+            elif not server_neighbor_tuple:
+                self._client_dct[clientID]["data"]["Neighbor_Tuple"] = [False]
+            if server_XYZ_tuple and client_XYZ_tuple:
+                self._client_dct[clientID]["data"]["XYZ_Tuple"] = client_information["XYZ_Tuple"]
+            elif not server_XYZ_tuple:
+                self._client_dct[clientID]["data"]["XYZ_Tuple"] = [False]
+
+        self._data_frame.display_XYZ()
+
+    # This method deletes client button and clears it from the dictionary
+    def del_client_button(self, client_information):
+        clientID = client_information["ID"]
+
+        if clientID in self.client_btn:
+            self.client_btn[clientID]["btn"].destroy()
+            del self.client_btn[clientID]["btn"]
 
 class PubSubGUI(ctk.CTk):
     def __init__(self):
@@ -158,91 +229,84 @@ class PubSubGUI(ctk.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
-        self.client_btns = []
+        self.client_dct = {}
         self.updated_client_list = False
         self.updated_data_frame = False
+        self.send_2_client = False
 
-        self.data_frame = DataFrame(self)
+        self.data_frame = DataFrame(self, self.client_dct)
         self.data_frame.grid(row=0, column=1, padx=20, pady=20, sticky="nsew")
 
-        self.switch_frame = SwitchFrame(self, self.data_frame)
+        self.switch_frame = SwitchFrame(self, self.data_frame, self.client_dct)
         self.switch_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
-        time.sleep(0.1)
+        time.sleep(0.01)
         BAT_server = threading.Thread(target=self.BATMAN_server_handler, args=())
         BAT_server.start()
 
-    def overwrite_client_list(self, new_list):
-        global client
-        # if a button from the data frame was pressed, must check some conditions
-        if self.data_frame.return_updates():
-            return 1
+    def print_client_dct(self, client_ID):
+        print(f"From main - {client_ID}")
+        for clientID, sub_dict_client in self.client_dct.items():
+            print(f"{clientID}: {sub_dict_client['data']}")
 
-        else:
-            client = new_list
-
-    def BATMAN_server_handler(self):
-        global client
-        # These values are for IPC, the server address is just the device address
-        # Changing the port is not recommended but if you do change it, do it on the server side
-        BAT_server_addr = get_local_ip()
-        server_port = 1111
-        GUI_client_socket = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
+    def BATMAN_Client_Handler(self, client_obj, addr):
+        # This will keep track of when the client is added
+        data_req = {
+            "Req_Neigh": False,
+            "Req_XYZ": False
+        }
+        first_connection = True
+        bat_pack = {}
 
         while True:
-            try:
-                GUI_client_socket.connect((BAT_server_addr, server_port))
-                while True:
-                    # Receiver
-                    data = GUI_client_socket.recv(1024)
-                    info = json.loads(data.decode('utf-8'))
-                    if info:
-                        if len(client) == 0:
-                            client = info
-                            self.updated_client_list = True
-                        else:
-                            # If a list sent by controller len != self.client length,
-                            # we know that something has been updated
-                            if len(info) != len(client):
-                                client = info
-                                self.updated_client_list = True
-                            # If it's the same length, have to check ID's
-                            else:
-                                non_match = False
-                                for index, i_info in enumerate(info):
-                                    if i_info[0] != client[index][0]:
-                                        non_match = True
-                                        break
+            # Checking for neighbors or XYZ conditions
+            data = client_obj.recv(1024)
+            if not data:
+                print(f"Connection lost at {addr}")
+                break
+            else:
+                bat_pack = json.loads(data.decode('utf-8'))
+                currentID = bat_pack["ID"]
 
-                                if non_match:
-                                    client = info
-                                    self.updated_client_list = True
+                if first_connection:
+                    self.switch_frame.add_client_button(bat_pack)
+                    first_connection = False
+                else:
+                    self.switch_frame.update_client_button(bat_pack)
 
-                                # This will iterate through the packet and check if the data
-                                # is true, if it is fill in the information
-                                for index, i_info in enumerate(info):
-                                    if i_info[1][0] and client[index][1][0]:
-                                        client[index][1] = i_info[1]
-                                    if i_info[2][0] and client[index][2][0]:
-                                        client[index][2] = i_info[2]
+                self.print_client_dct(bat_pack["ID"])
 
-                    if self.updated_client_list:
-                        # Update the buttons if needed
-                        print("updated list")
-                        self.switch_frame.update_client_buttons(client)
-                        self.updated_client_list = False
+                if self.client_dct[currentID]["data"]["Neighbor_Tuple"][0]:
+                    data_req["Req_Neigh"] = True
+                else:
+                    data_req["Req_Neigh"] = False
 
-                    # Sender
-                    json_data = json.dumps(client)
-                    GUI_client_socket.sendall(json_data.encode('utf-8'))
+                if self.client_dct[currentID]["data"]["XYZ_Tuple"][0]:
+                    data_req["Req_XYZ"] = True
+                else:
+                    data_req["Req_XYZ"] = False
 
-                    time.sleep(1)
+                json_data = json.dumps(data_req)
+                client_obj.sendall(json_data.encode('utf-8'))
 
-            except sck.error:
-                print(f"Error: {sck.error}")
-                print(f"Retying to connect to server: {BAT_server_addr}")
-                GUI_client_socket.close()
-                tm.sleep(1)
+                time.sleep(3)
+
+        self.switch_frame.del_client_button(bat_pack)
+        client_obj.close()
+
+    def BATMAN_server_handler(self):
+        server_ADDR = get_local_ip()
+        server_PORT = 9559
+        server_socket = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
+        server_socket.bind((server_ADDR, server_PORT))
+        server_socket.listen()
+
+        # Handler for the connected client objects
+        while True:
+            client_obj, address = server_socket.accept()
+            sub_thread = threading.Thread(target=self.BATMAN_Client_Handler,
+                                          args=(client_obj, address))
+            sub_thread.start()
 
 if __name__ == "__main__":
     gui = PubSubGUI()
