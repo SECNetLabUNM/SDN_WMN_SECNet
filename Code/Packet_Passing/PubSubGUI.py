@@ -6,6 +6,7 @@ import socket as sck
 import threading
 import time as tm
 import json
+import copy
 
 '''
 Code sections are labeled in parts. Please start at 
@@ -62,23 +63,12 @@ class DataTextScrollFrame(ctk.CTkScrollableFrame):
         self._local_widgets.append(new_label)
 
     def add_data(self, new_data):
-        self.clear_all_data()
-        for i in new_data:
-            new_label = ctk.CTkLabel(master=self,
-                                     text=f"{i}",
-                                     fg_color="gray30",
-                                     corner_radius=6)
-            new_label.grid(column=0, padx=10, pady=(10, 0), sticky="we")
-            self._local_widgets.append(new_label)
-
-        '''
         self._local_length = len(self._local_data)
         local_length = self._local_length
         new_data_length = len(new_data)
 
         # If local data is empty
         if not local_length:
-            print("no local data, adding fresh data!")
             for i in new_data:
                 new_label = ctk.CTkLabel(master=self,
                                          text=f"{i}",
@@ -88,7 +78,6 @@ class DataTextScrollFrame(ctk.CTkScrollableFrame):
                 self._local_widgets.append(new_label)
         # If lengths of local data > new data
         elif local_length > new_data_length:
-            print("old length >>> new length")
             change_length = local_length - new_data_length
             for _ in range(change_length):
                 # Destroys last element
@@ -96,30 +85,29 @@ class DataTextScrollFrame(ctk.CTkScrollableFrame):
             self.update_data(new_data)
         # If lengths of local data < new data
         elif local_length < new_data_length:
-            print("old length <<< new length")
             self.update_data(new_data[:local_length])
             remaining_data = new_data[local_length:]
             for data in remaining_data:
                 self.add_label(data)
         # If lengths of local data == new data
         elif local_length == new_data_length:
-            print("same data lengths")
             self.update_data(new_data)
 
         # Update local data
-        self._local_data = new_data
-        '''
+        self._local_data = list(new_data)
 
     def update_data(self, new_data):
         for index, btn in enumerate(self._local_widgets):
             btn.configure(text=f"{new_data[index]}")
 
     def clear_all_data(self):
+        self._local_length = 0
+        self._local_data.clear()
+
         if len(self._local_widgets) > 0:
             for btn in self._local_widgets:
                 btn.destroy()
             self._local_widgets.clear()
-        self._local_length = 0
 
 # Part III: This is the data frame that is effected
 # by the node switches (sub/unsub is here)
@@ -130,7 +118,6 @@ class DataFrame(ctk.CTkFrame):
         self._saved_neighbor_text = {}
         self._saved_XYZ_text = {}
         self._current_device_info = {}
-        self._subscribe_status = {}
         self.subscribeNeighbor_pressed = False
         self.subscribeXYZ_pressed = False
         self.grid_columnconfigure((0, 1, 2), weight=1)
@@ -305,6 +292,7 @@ class DataFrame(ctk.CTkFrame):
 
         self._current_device_info = device_info
         self._client_dct = client_dct
+        client_id = self._current_device_info['ID']
 
         # This is the default states
         if first_click:
@@ -334,10 +322,10 @@ class DataFrame(ctk.CTkFrame):
 
             self.clearNeighbor_handler()
             self.display_neighbor(self._current_device_info["Neighbor_Tuple"],
-                                  self._current_device_info['ID'])
+                                  client_id)
 
             self.display_XYZ(self._current_device_info["XYZ_Tuple"],
-                             self._current_device_info['ID'])
+                             client_id)
 
         self.titleID.configure(text=f"ID: {self._current_device_info['ID']}")
         self.titleMAC.configure(text=f"MAC: {self._current_device_info['MAC']}")
@@ -380,81 +368,56 @@ class DataFrame(ctk.CTkFrame):
 
     def display_neighbor(self, data_from_main, client_id):
         if data_from_main:
-            print("")
-            print(f"Current Client - {client_id}")
             status = data_from_main[0]
             data_length = len(data_from_main)
 
             # For the rare scenario where the client has no neighbors
             if status and (data_length == 1):
-                print("No neighbors scenario")
-                self._saved_neighbor_text[client_id] = {
-                    "nMAC": [],
-                    "nIP": [],
-                    "LQ": []
-                }
                 self.clearNeighbor_handler()
             # For new subscribe entries
             elif status and (data_length > 1):
-                print("True status handler")
                 neighMAC = data_from_main[1]["nMAC"]
                 neighIP = data_from_main[1]["nIP"]
                 neighLQ = data_from_main[1]["LQ"]
-
                 # If the temporary data empty, add to it
-                if not self._saved_neighbor_text:
-                    print("Just subscribed, adding neighbors")
-                    print(neighMAC)
-                    print(neighIP)
-                    print(neighLQ)
+                if client_id not in self._saved_neighbor_text:
                     self._saved_neighbor_text[client_id] = {
-                        "nMAC": neighMAC,
-                        "nIP": neighIP,
-                        "LQ": neighLQ
+                        "nMAC": list(neighMAC),
+                        "nIP": list(neighIP),
+                        "LQ": list(neighLQ)
                     }
-                    self.add_neighbor_data(neighMAC, neighIP, neighLQ)
+                    self.add_neighbor_data(list(neighMAC),
+                                           list(neighIP),
+                                           list(neighLQ))
                 # If there already is data in the temp variable,
                 # go to check what needs to be replaced
                 else:
-                    print("subscribed, checking neighbors list")
                     tempIP = self._saved_neighbor_text[client_id]["nIP"]
 
                     # Check if we need to replace
                     if neighIP == tempIP:
-                        print("same IP scenario, change only LQ")
-                        print(neighMAC)
-                        print(neighIP)
-                        print(neighLQ)
                         # If the list of IPs are identical, only update LQ
-                        self._saved_neighbor_text[client_id]["LQ"] = neighLQ
-                        self.text_neighbors_LQ.update_data(neighLQ)
+                        self._saved_neighbor_text[client_id]["LQ"] = list(neighLQ)
+                        self.text_neighbors_LQ.update_data(list(neighLQ))
                     # If they are not equal, replace every element
                     else:
-                        print("not same neighbors scenario, change everything")
-                        print(neighMAC)
-                        print(neighIP)
-                        print(neighLQ)
                         self._saved_neighbor_text[client_id] = {
-                            "nMAC": neighMAC,
-                            "nIP": neighIP,
-                            "LQ": neighLQ
+                            "nMAC": list(neighMAC),
+                            "nIP": list(neighIP),
+                            "LQ": list(neighLQ)
                         }
-                        self.add_neighbor_data(neighMAC, neighIP, neighLQ)
+                        self.add_neighbor_data(list(neighMAC),
+                                               list(neighIP),
+                                               list(neighLQ))
             elif not status:
-                print("False state")
                 if ((len(self._saved_neighbor_text) > 0) and
                         (client_id in self._saved_neighbor_text)):
-                    print("Print from save state")
                     nMAC = self._saved_neighbor_text[client_id]["nMAC"]
                     nIP = self._saved_neighbor_text[client_id]["nIP"]
                     nLQ = self._saved_neighbor_text[client_id]["LQ"]
-                    print(nMAC)
-                    print(nIP)
-                    print(nLQ)
 
-                    self.add_neighbor_data(nMAC, nIP, nLQ)
+                    self.add_neighbor_data(list(nMAC), list(nIP), list(nLQ))
                 else:
-                    print("Print emptiness")
                     self.clearNeighbor_handler()
 
     def subscribeXYZ_handler(self):
@@ -490,9 +453,9 @@ class DataFrame(ctk.CTkFrame):
                 new_Y = data_from_main[1]['y']
                 new_Z = data_from_main[1]['z']
                 self._saved_XYZ_text[client_id] = {
-                    "x": new_X,
-                    "y": new_Y,
-                    "z": new_Z
+                    "x": list(new_X),
+                    "y": list(new_Y),
+                    "z": list(new_Z)
                 }
                 self.text_label_X.configure(
                     text=f"X: {new_X}"
@@ -540,7 +503,7 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         self._current_ID = 0
         self._client_dct = client_dct
         self._data_frame = data_frame
-        self._first_click_tracker = {}
+        self._first_click_tracker = []
         self._client_btn = {}
         self.grid_columnconfigure(0, weight=1)
         self.title = ctk.CTkButton(master=self, text="B.A.T.M.A.N Switches", fg_color="gray30", corner_radius=6)
@@ -554,10 +517,16 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         self._current_ID = client_id
         self._current_client = self._client_dct[self._current_ID]
 
-        f_clk = self._first_click_tracker[self._current_ID]["f_clk"]
+        f_clk = True
+        obj_ind = 0
+
+        for index, i in enumerate(self._first_click_tracker):
+            if i[0] == client_id:
+                f_clk = i[1]
+                obj_ind = index
 
         if f_clk:
-            self._first_click_tracker[self._current_ID]["f_clk"] = False
+            self._first_click_tracker[obj_ind][1] = False
 
         self._data_frame.update_client_ID(self._current_client,
                                           self._client_dct,
@@ -593,7 +562,7 @@ class SwitchFrame(ctk.CTkScrollableFrame):
                                           "IP": client_information["IP"],
                                           "Neighbor_Tuple": client_information["Neighbor_Tuple"],
                                           "XYZ_Tuple": client_information["XYZ_Tuple"]}
-            self._first_click_tracker[clientID] = {"f_clk": True}
+            self._first_click_tracker.append([clientID, True])
 
     # This method deletes client button and clears it from the dictionary
     def del_client_button(self, client_information):
