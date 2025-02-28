@@ -111,8 +111,25 @@ class ClientHandler:
             return None
 
     def retrieve_ID(self):
+        br = ""
+
+        try:
+            output = subprocess.run(["sudo", "ovs-vsctl", "show"],
+                                     capture_output=True,
+                                     text=True)
+            text_output = output.stdout.strip()
+
+            for line in text_output.split("\n"):
+                if line.lstrip().startswith("Bridge"):
+                    elements = line.split()
+                    if len(elements) >= 1:
+                        br = elements[1]
+                        break
+        except Exception as e:
+            print(f"Error in getting the bridge: {e}")
+
         # input dummy entry for mac
-        command = f"sudo ovs-ofctl -O OpenFlow13 add-flow {br_name} 'table=99, priority=0, ip, dl_src={self._mac}, actions=drop'"
+        command = f"sudo ovs-ofctl -O OpenFlow13 add-flow {br} 'table=99, priority=0, ip, dl_src={self._mac}, actions=drop'"
         try:
             subprocess.run(command, shell=True, check=True)
         except subprocess.CalledProcessError as e:
