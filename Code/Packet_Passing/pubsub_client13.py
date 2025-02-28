@@ -27,6 +27,7 @@ server_ADDR = "192.168.1.114"
 server_PORT = 9559
 # IMPORTANT: set the NIC that B.A.T.M.A.N is using here
 nic_name = "wlp2s0"
+br_name = "br_1"
 
 def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
@@ -111,7 +112,7 @@ class ClientHandler:
 
     def retrieve_ID(self):
         # input dummy entry for mac
-        command = f"sudo ovs-ofctl -O OpenFlow13 add-flow br_1 'table=99, priority=0, ip, dl_src={self._mac}, actions=drop'"
+        command = f"sudo ovs-ofctl -O OpenFlow13 add-flow {br_name} 'table=99, priority=0, ip, dl_src={self._mac}, actions=drop'"
         try:
             subprocess.run(command, shell=True, check=True)
         except subprocess.CalledProcessError as e:
@@ -135,7 +136,7 @@ class ClientHandler:
                 if flow['table_id'] == 99:
                     match = flow.get('match', {})
                     dl_src = match.get('dl_src')
-                    if dl_src:
+                    if dl_src and dl_src == self._mac:
                         switchID = switch_id
                         break
 
