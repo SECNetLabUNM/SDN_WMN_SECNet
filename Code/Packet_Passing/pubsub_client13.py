@@ -1,14 +1,9 @@
 import socket as sck
-import threading
 import json
 import random
 import time
 import subprocess
 import requests
-from multiprocessing.connection import Client
-
-from scapy.libs.six import get_method_self
-
 
 def get_local_ip():
     try:
@@ -40,7 +35,7 @@ class ClientHandler:
         self._mac = self.retrieve_client_MAC()
         # This is the main dictionary packet
         self.device_info = {
-            "ID": self.device_id,
+            "ID": self.retrieve_ID(),
             "MAC": self._mac,
             "IP": self.retrieve_client_IP(),
             "Neighbor_Tuple": [False],
@@ -115,8 +110,8 @@ class ClientHandler:
 
         try:
             output = subprocess.run(["sudo", "ovs-vsctl", "show"],
-                                     capture_output=True,
-                                     text=True)
+                                          capture_output=True,
+                                          text=True)
             text_output = output.stdout.strip()
 
             for line in text_output.split("\n"):
@@ -158,7 +153,7 @@ class ClientHandler:
                         break
 
         return switchID
-
+    '''
     # Placeholder randomizer
     # TODO: Replace with actual neighbor taker from B.A.T.M.A.N
     def random_device_neighbors(self):
@@ -179,22 +174,22 @@ class ClientHandler:
         }
 
         return device_neighbors
-
+    '''
     def return_device_neighbors(self):
-        randMac, randLQ = self.retrieve_neighbors()
-        randIP = []
+        Mac, LQ = self.retrieve_neighbors()
+        IP = [""] * len(Mac)
 
         device_neighbors = {
-            "nMAC": randMac,
-            "nIP": randIP,
-            "LQ": randLQ
+            "nMAC": Mac,
+            "nIP": IP,
+            "LQ": LQ
         }
 
         return device_neighbors
 
     def make_device(self, subbed_info, subbed_xyz):
         if subbed_info:
-            device_neighbors = self.random_device_neighbors()
+            device_neighbors = self.return_device_neighbors()
             self.device_info["Neighbor_Tuple"] = [True, device_neighbors]
         else:
             self.device_info["Neighbor_Tuple"] = [False]
@@ -244,8 +239,8 @@ class ClientHandler:
 
 if __name__ == "__main__":
     client = ClientHandler(server_ADDR, server_PORT)
-    print(client.retrieve_ID())
+    #print(client.retrieve_ID())
     #print(client.retrieve_client_IP())
     #print(client.retrieve_client_MAC())
-    #print(client.return_device_neighbors())
+    print(client.return_device_neighbors())
     #client.connection()

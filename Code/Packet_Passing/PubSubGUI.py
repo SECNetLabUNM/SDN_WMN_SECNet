@@ -1,12 +1,11 @@
-import _tkinter
+import copy
 
 import customtkinter as ctk
 import time
 import socket as sck
 import threading
-import time as tm
 import json
-import copy
+import subprocess
 
 '''
 Code sections are labeled in parts. Please start at 
@@ -26,7 +25,8 @@ def get_local_ip():
         local_ip = "Unable to determine local IP"
     return local_ip
 
-server_ADDR = get_local_ip()
+server_ADDR = "100.100.1.5"
+nic_name = "wlp2s0"
 server_PORT = 9559
 
 ctk.set_appearance_mode("dark")
@@ -102,7 +102,7 @@ class DataTextScrollFrame(ctk.CTkScrollableFrame):
 
     def clear_all_data(self):
         self._local_length = 0
-        self._local_data.clear()
+        self._local_data = []
 
         if len(self._local_widgets) > 0:
             for btn in self._local_widgets:
@@ -293,6 +293,7 @@ class DataFrame(ctk.CTkFrame):
         self._current_device_info = device_info
         self._client_dct = client_dct
         client_id = self._current_device_info['ID']
+        print(client_id)
 
         # This is the default states
         if first_click:
@@ -320,7 +321,10 @@ class DataFrame(ctk.CTkFrame):
             else:
                 self.subscribeNeighbor_pressed = False
 
+            print(f"b4 clear: {self._saved_neighbor_text}")
             self.clearNeighbor_handler()
+
+            print(f"after clear: {self._saved_neighbor_text}")
             self.display_neighbor(self._current_device_info["Neighbor_Tuple"],
                                   client_id)
 
@@ -370,17 +374,20 @@ class DataFrame(ctk.CTkFrame):
         if data_from_main:
             status = data_from_main[0]
             data_length = len(data_from_main)
-
+            print(f"from client {client_id}")
             # For the rare scenario where the client has no neighbors
             if status and (data_length == 1):
+                print("true condition no neighbors")
                 self.clearNeighbor_handler()
             # For new subscribe entries
             elif status and (data_length > 1):
+                print("true condition")
                 neighMAC = data_from_main[1]["nMAC"]
                 neighIP = data_from_main[1]["nIP"]
                 neighLQ = data_from_main[1]["LQ"]
                 # If the temporary data empty, add to it
                 if client_id not in self._saved_neighbor_text:
+                    print("empty save neighbors add")
                     self._saved_neighbor_text[client_id] = {
                         "nMAC": list(neighMAC),
                         "nIP": list(neighIP),
@@ -392,33 +399,45 @@ class DataFrame(ctk.CTkFrame):
                 # If there already is data in the temp variable,
                 # go to check what needs to be replaced
                 else:
+                    print("non empty neighbor list")
+                    '''
                     tempIP = self._saved_neighbor_text[client_id]["nIP"]
 
                     # Check if we need to replace
                     if neighIP == tempIP:
+                        print("identical IPs, changing LQ")
                         # If the list of IPs are identical, only update LQ
                         self._saved_neighbor_text[client_id]["LQ"] = list(neighLQ)
                         self.text_neighbors_LQ.update_data(list(neighLQ))
                     # If they are not equal, replace every element
                     else:
-                        self._saved_neighbor_text[client_id] = {
-                            "nMAC": list(neighMAC),
-                            "nIP": list(neighIP),
-                            "LQ": list(neighLQ)
-                        }
-                        self.add_neighbor_data(list(neighMAC),
-                                               list(neighIP),
-                                               list(neighLQ))
+                    '''
+                    print("non identical IP, change everything")
+                    self._saved_neighbor_text[client_id] = {
+                        "nMAC": list(neighMAC),
+                        "nIP": list(neighIP),
+                        "LQ": list(neighLQ)
+                    }
+                    print(f"b4 add: {self._saved_neighbor_text[client_id]}")
+                    self.add_neighbor_data(list(neighMAC),
+                                           list(neighIP),
+                                           list(neighLQ))
+                    print(f"after add: {self._saved_neighbor_text[client_id]}")
             elif not status:
+                print("false handler")
                 if ((len(self._saved_neighbor_text) > 0) and
                         (client_id in self._saved_neighbor_text)):
                     nMAC = self._saved_neighbor_text[client_id]["nMAC"]
                     nIP = self._saved_neighbor_text[client_id]["nIP"]
                     nLQ = self._saved_neighbor_text[client_id]["LQ"]
 
+                    print("save state")
+                    print(f"{nMAC}, {nIP}, {nLQ}")
                     self.add_neighbor_data(list(nMAC), list(nIP), list(nLQ))
                 else:
+                    print("emptiness")
                     self.clearNeighbor_handler()
+
 
     def subscribeXYZ_handler(self):
         if len(self._current_device_info) > 0:
@@ -453,9 +472,9 @@ class DataFrame(ctk.CTkFrame):
                 new_Y = data_from_main[1]['y']
                 new_Z = data_from_main[1]['z']
                 self._saved_XYZ_text[client_id] = {
-                    "x": list(new_X),
-                    "y": list(new_Y),
-                    "z": list(new_Z)
+                    "x": new_X,
+                    "y": new_Y,
+                    "z": new_Z
                 }
                 self.text_label_X.configure(
                     text=f"X: {new_X}"
@@ -534,7 +553,8 @@ class SwitchFrame(ctk.CTkScrollableFrame):
 
     # This method adds newly arrived clients and creates a button
     # It uses dictionaries to quickly search for the ID
-    def add_client_button(self, client_information):
+    def add_client_button(self, c_list):
+        client_information = copy.copy(c_list)
         clientID = client_information["ID"]
 
         if clientID not in self._client_dct:
@@ -589,8 +609,8 @@ class PubSubGUI(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self._client_dct = {}
+        self._client_MAC_IP = {self.retrieve_client_MAC(): server_ADDR}
         self._client_updated = {}
-        self._updated_data = False
 
         # object for part III
         self.data_frame = DataFrame(self, self._client_dct)
@@ -607,6 +627,26 @@ class PubSubGUI(ctk.CTk):
         time.sleep(0.01)
         self.client_frames_handler()
 
+    def retrieve_client_MAC(self):
+        try:
+            output = subprocess.run(["ifconfig", nic_name],
+                                    capture_output=True,
+                                    text=True)
+            text_output = output.stdout.strip()
+            mac = ""
+
+            for line in text_output.split("\n"):
+                if line.lstrip().startswith("ether"):
+                    elements = line.split()
+                    if len(elements) >= 2:
+                        mac = elements[1]
+                        break
+            return mac
+
+        except Exception as e:
+            print(f"Error trying to get the MAC: {e}")
+            return None
+
     def update_client_dct(self, client_information):
         clientID = client_information["ID"]
 
@@ -617,7 +657,13 @@ class PubSubGUI(ctk.CTk):
             client_XYZ_tuple = client_information["XYZ_Tuple"][0]
 
             if server_neighbor_tuple and client_neighbor_tuple:
-                self._client_dct[clientID]["Neighbor_Tuple"] = client_information["Neighbor_Tuple"]
+                self._client_dct[clientID]["Neighbor_Tuple"] = copy.copy(client_information["Neighbor_Tuple"])
+                for index, existing_mac in enumerate(
+                        self._client_dct[clientID]["Neighbor_Tuple"][1]["nMAC"]
+                ):
+                    if existing_mac in self._client_MAC_IP:
+                        self._client_dct[clientID]["Neighbor_Tuple"][1]["nIP"][index] = (
+                            self._client_MAC_IP)[existing_mac]
             elif not server_neighbor_tuple:
                 self._client_dct[clientID]["Neighbor_Tuple"] = [False]
             if server_XYZ_tuple and client_XYZ_tuple:
@@ -667,15 +713,16 @@ class PubSubGUI(ctk.CTk):
                 if first_connection:
                     # If it's the first connection, we add the client as a button
                     self.switch_frame.add_client_button(bat_pack)
+                    self._client_MAC_IP[bat_pack["MAC"]] = bat_pack["IP"]
                     first_connection = False
                 else:
+                    # If it isn't, client dictionary is updated
+                    self.update_client_dct(copy.copy(bat_pack))
+                    time.sleep(0.001)
                     self._client_updated[currentID] = {
                         "updated": True
                     }
-                    # If it isn't, client dictionary is updated
-                    self.update_client_dct(bat_pack)
 
-                self._updated_data = True
                 #self.print_client_dct(bat_pack["ID"])
 
                 # Request handling, checking our current dictionary if we need to ask
