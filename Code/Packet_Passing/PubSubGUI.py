@@ -151,6 +151,7 @@ class DataFrame(ctk.CTkFrame):
     def __init__(self, master, client_dct):
         super().__init__(master)
         self._client_dct = client_dct
+        self._current_ID = 0
         self._saved_neighbor_text = {}
         self._saved_XYZ_text = {}
         self._current_device_info = {}
@@ -166,23 +167,9 @@ class DataFrame(ctk.CTkFrame):
         column_width = 200
 
         # ---- These three widgets are identifications for what client we are using ----
-        self.titleID = ctk.CTkLabel(master=self,
-                                    text="ID: NONE",
-                                    fg_color="gray30",
-                                    width=column_width,
-                                    corner_radius=6)
-
-        self.titleMAC = ctk.CTkLabel(master=self,
-                                     text="MAC: NONE",
-                                     fg_color="gray30",
-                                     width=column_width,
-                                     corner_radius=6)
-
-        self.titleIP = ctk.CTkLabel(master=self,
-                                    text="IP: NONE",
-                                    fg_color="gray30",
-                                    width=column_width,
-                                    corner_radius=6)
+        self.titleID = XYZTextScrollFrame(self, "ID")
+        self.titleMAC = XYZTextScrollFrame(self, "MAC")
+        self.titleIP = XYZTextScrollFrame(self, "IP")
 
         self.titleID.grid(row=0, column=0,
                           padx=(paddingX, 5),
@@ -208,7 +195,7 @@ class DataFrame(ctk.CTkFrame):
 
         self.clearNeighbor_bt = ctk.CTkButton(master=self,
                                               text="Clear Neighbors",
-                                              command=self.clear_neighbor_handler)
+                                              command=self.clear_all_neighbor_data)
 
         self.statusNeighbor_bt = ctk.CTkLabel(master=self,
                                               text="Not Requesting",
@@ -246,7 +233,7 @@ class DataFrame(ctk.CTkFrame):
 
         self.clearXYZ_bt = ctk.CTkButton(master=self,
                                          text="Clear XYZ",
-                                         command=self.clear_XYZ_handler)
+                                         command=self.clear_all_XYZ_data)
 
         self.statusXYZ_bt = ctk.CTkLabel(master=self,
                                          text="Not Requesting",
@@ -310,7 +297,7 @@ class DataFrame(ctk.CTkFrame):
 
         self._current_device_info = device_info
         self._client_dct = client_dct
-        client_id = self._current_device_info['ID']
+        self._current_ID = self._current_device_info['ID']
 
         # This is the default states
         if first_click:
@@ -340,11 +327,11 @@ class DataFrame(ctk.CTkFrame):
             #                      client_id)
 
             self.display_XYZ(self._current_device_info["XYZ_Tuple"],
-                             client_id)
+                             self._current_ID)
 
-        self.titleID.configure(text=f"ID: {self._current_device_info['ID']}")
-        self.titleMAC.configure(text=f"MAC: {self._current_device_info['MAC']}")
-        self.titleIP.configure(text=f"IP: {self._current_device_info['IP']}")
+        self.titleID.update_text(self._current_device_info['ID'])
+        self.titleMAC.update_text(self._current_device_info['MAC'])
+        self.titleIP.update_text(self._current_device_info['IP'])
 
         self.color_neighbors()
         self.color_XYZ()
@@ -426,6 +413,17 @@ class DataFrame(ctk.CTkFrame):
         self.text_neighbors_IP.clear_all_data()
         self.text_neighbors_LQ.clear_all_data()
 
+    def clear_all_neighbor_data(self):
+        self.text_neighbors_MAC.clear_all_data()
+        self.text_neighbors_IP.clear_all_data()
+        self.text_neighbors_LQ.clear_all_data()
+        if self._current_ID in self._saved_neighbor_text:
+            self._saved_neighbor_text[self._current_ID] = {
+                "nMAC": [],
+                "nIP": [],
+                "LQ": []
+            }
+
     def subscribe_XYZ_handler(self):
         if len(self._current_device_info) > 0:
             device_ID = self._current_device_info["ID"]
@@ -486,6 +484,18 @@ class DataFrame(ctk.CTkFrame):
         self.text_label_X.clear_text()
         self.text_label_Y.clear_text()
         self.text_label_Z.clear_text()
+
+    def clear_all_XYZ_data(self):
+        self.text_label_X.clear_text()
+        self.text_label_Y.clear_text()
+        self.text_label_Z.clear_text()
+
+        if self._current_ID in self._saved_XYZ_text:
+            self._saved_XYZ_text[self._current_ID] = {
+                "x": [],
+                "y": [],
+                "z": []
+            }
 
 # Part II: This is the frame class of the switches / nodes themselves
 # The left section with the green buttons
