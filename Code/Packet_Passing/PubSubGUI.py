@@ -7,6 +7,8 @@ import threading
 import json
 import subprocess
 
+from customtkinter import set_default_color_theme
+
 '''
 Code sections are labeled in parts. Please start at 
 Part I and then make your way to Part III.
@@ -25,7 +27,7 @@ def get_local_ip():
         local_ip = "Unable to determine local IP"
     return local_ip
 
-server_ADDR = "100.100.1.5"
+server_ADDR = get_local_ip()
 nic_name = "wlp2s0"
 server_PORT = 9559
 
@@ -33,7 +35,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 theme_green = "#2ca373"
 
-class DataTextScrollFrame(ctk.CTkScrollableFrame):
+class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, title):
         super().__init__(master)
         self._local_data = []
@@ -109,6 +111,40 @@ class DataTextScrollFrame(ctk.CTkScrollableFrame):
                 btn.destroy()
             self._local_widgets.clear()
 
+class XYZTextScrollFrame(ctk.CTkFrame):
+    def __init__(self, master, title):
+        super().__init__(master, height=45)
+        self._title = title
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+        self.title_display = ctk.CTkLabel(master=self,
+                                          text=self._title,
+                                          fg_color="cyan4",
+                                          corner_radius=6,
+                                          width=35)
+
+        self.title_display.grid(column=0,
+                                row=0,
+                                padx=(10, 0),
+                                pady=10)
+
+        self.text_label = ctk.CTkLabel(master=self,
+                                       text="",
+                                       fg_color="gray30",
+                                       corner_radius=6)
+
+        self.text_label.grid(column=1,
+                             row=0,
+                             padx=10,
+                             pady=10,
+                             sticky="we")
+
+    def update_text(self, text):
+        self.text_label.configure(text=text)
+
+    def clear_text(self):
+        self.text_label.configure(text="")
+
 # Part III: This is the data frame that is effected
 # by the node switches (sub/unsub is here)
 class DataFrame(ctk.CTkFrame):
@@ -168,14 +204,14 @@ class DataFrame(ctk.CTkFrame):
         self.subNeighbor_bt = ctk.CTkButton(master=self,
                                             text="Request Neighbors",
                                             fg_color="gray30",
-                                            command=self.subscribeNeighbor_handler)
+                                            command=self.subscribe_neighbor_handler)
 
         self.clearNeighbor_bt = ctk.CTkButton(master=self,
                                               text="Clear Neighbors",
-                                              command=self.clearNeighbor_handler)
+                                              command=self.clear_neighbor_handler)
 
         self.statusNeighbor_bt = ctk.CTkLabel(master=self,
-                                              text="Unsubscribed",
+                                              text="Not Requesting",
                                               fg_color="firebrick1",
                                               corner_radius=6)
 
@@ -192,13 +228,13 @@ class DataFrame(ctk.CTkFrame):
                                     sticky="we")
 
         # ---- These are the text boxes for the data of XYZ ----
-        self.text_neighbors_MAC = DataTextScrollFrame(self, "MAC")
+        self.text_neighbors_MAC = NeighborTextScrollFrame(self, "MAC")
         self.text_neighbors_MAC.grid(row=2, column=0, padx=(paddingX, 5), pady=paddingY, sticky="nsew")
 
-        self.text_neighbors_IP = DataTextScrollFrame(self, "IP")
+        self.text_neighbors_IP = NeighborTextScrollFrame(self, "IP")
         self.text_neighbors_IP.grid(row=2, column=1, padx=5, pady=paddingY, sticky="nsew")
 
-        self.text_neighbors_LQ = DataTextScrollFrame(self, "LQ")
+        self.text_neighbors_LQ = NeighborTextScrollFrame(self, "LQ")
         self.text_neighbors_LQ.grid(row=2, column=2, padx=(5, paddingX), pady=paddingY, sticky="nsew")
 
         # ---- These three widgets are the subscribe, clear, and status widgets ----
@@ -206,14 +242,14 @@ class DataFrame(ctk.CTkFrame):
         self.subXYZ_bt = ctk.CTkButton(master=self,
                                        text="Request XYZ",
                                        fg_color="gray30",
-                                       command=self.subscribeXYZ_handler)
+                                       command=self.subscribe_XYZ_handler)
 
         self.clearXYZ_bt = ctk.CTkButton(master=self,
                                          text="Clear XYZ",
-                                         command=self.clearXYZ_handler)
+                                         command=self.clear_XYZ_handler)
 
         self.statusXYZ_bt = ctk.CTkLabel(master=self,
-                                         text="Unsubscribed",
+                                         text="Not Requesting",
                                          fg_color="firebrick1",
                                          corner_radius=6)
 
@@ -230,38 +266,24 @@ class DataFrame(ctk.CTkFrame):
                                sticky="we")
 
         # ---- These are the text boxes for the data of XYZ ----
-        self.text_box_X = ctk.CTkFrame(master=self)
-        self.text_box_Y = ctk.CTkFrame(master=self)
-        self.text_box_Z = ctk.CTkFrame(master=self)
+        self.text_label_X = XYZTextScrollFrame(self, "X")
+        self.text_label_Y = XYZTextScrollFrame(self, "Y")
+        self.text_label_Z = XYZTextScrollFrame(self, "Z")
 
-        self.text_box_X.grid(row=4, column=0,
-                             padx=(paddingX, 5),
-                             pady=paddingY,
-                             sticky="we")
+        self.text_label_X.grid(row=4, column=0,
+                               padx=(paddingX, 5),
+                               pady=paddingY,
+                               sticky="we")
 
-        self.text_box_Y.grid(row=4, column=1,
-                             padx=5,
-                             pady=paddingY,
-                             sticky="we")
+        self.text_label_Y.grid(row=4, column=1,
+                               padx=5,
+                               pady=paddingY,
+                               sticky="we")
 
-        self.text_box_Z.grid(row=4, column=2,
-                             padx=(5, paddingX),
-                             pady=paddingY,
-                             sticky="we")
-
-        # Dummy widget to control height
-        xyz_height = 35
-        self.text_label_X = ctk.CTkLabel(master=self.text_box_X,
-                                         text="", height=xyz_height)
-        self.text_label_X.pack(fill="both", expand=True)
-
-        self.text_label_Y = ctk.CTkLabel(master=self.text_box_Y,
-                                         text="", height=xyz_height)
-        self.text_label_Y.pack(fill="both", expand=True)
-
-        self.text_label_Z = ctk.CTkLabel(master=self.text_box_Z,
-                                         text="", height=xyz_height)
-        self.text_label_Z.pack(fill="both", expand=True)
+        self.text_label_Z.grid(row=4, column=2,
+                               padx=(5, paddingX),
+                               pady=paddingY,
+                               sticky="we")
 
     def print_client_dct(self):
         print("From data frame")
@@ -270,14 +292,10 @@ class DataFrame(ctk.CTkFrame):
 
     def dropped_client_handler(self):
         self.subscribeNeighbor_pressed = False
-        self.text_neighbors_MAC.clear_all_data()
-        self.text_neighbors_IP.clear_all_data()
-        self.text_neighbors_LQ.clear_all_data()
+        self.clear_neighbor_handler()
 
         self.subscribeXYZ_pressed = False
-        self.text_label_X.configure(text="X:")
-        self.text_label_Y.configure(text="Y:")
-        self.text_label_Z.configure(text="Z:")
+        self.clear_XYZ_handler()
 
         self.titleID.configure(text="Disconnected")
         self.titleMAC.configure(text=f"MAC:")
@@ -293,20 +311,14 @@ class DataFrame(ctk.CTkFrame):
         self._current_device_info = device_info
         self._client_dct = client_dct
         client_id = self._current_device_info['ID']
-        print(client_id)
 
         # This is the default states
         if first_click:
             self.subscribeNeighbor_pressed = False
-            self.text_neighbors_MAC.clear_all_data()
-            self.text_neighbors_IP.clear_all_data()
-            self.text_neighbors_LQ.clear_all_data()
-
             self.subscribeXYZ_pressed = False
-            self.text_label_X.configure(text="X:")
-            self.text_label_Y.configure(text="Y:")
-            self.text_label_Z.configure(text="Z:")
 
+            self.clear_neighbor_handler()
+            self.clear_XYZ_handler()
         else:
             Neighbor_state = self._current_device_info["Neighbor_Tuple"][0]
             XYZ_state = self._current_device_info["XYZ_Tuple"][0]
@@ -321,12 +333,11 @@ class DataFrame(ctk.CTkFrame):
             else:
                 self.subscribeNeighbor_pressed = False
 
-            print(f"b4 clear: {self._saved_neighbor_text}")
-            self.clearNeighbor_handler()
-
-            print(f"after clear: {self._saved_neighbor_text}")
-            self.display_neighbor(self._current_device_info["Neighbor_Tuple"],
-                                  client_id)
+            self.clear_neighbor_handler()
+            self.clear_XYZ_handler()
+            # UNDER CONSTRUCTION
+            #self.display_neighbor(self._current_device_info["Neighbor_Tuple"],
+            #                      client_id)
 
             self.display_XYZ(self._current_device_info["XYZ_Tuple"],
                              client_id)
@@ -338,7 +349,7 @@ class DataFrame(ctk.CTkFrame):
         self.color_neighbors()
         self.color_XYZ()
 
-    def subscribeNeighbor_handler(self):
+    def subscribe_neighbor_handler(self):
         if len(self._current_device_info) > 0:
             device_ID = self._current_device_info["ID"]
             if not self.subscribeNeighbor_pressed:
@@ -360,28 +371,15 @@ class DataFrame(ctk.CTkFrame):
             self.statusNeighbor_bt.configure(text="Unsubscribed",
                                              fg_color="firebrick1")
 
-    def add_neighbor_data(self, mac, ip, lq):
-        self.text_neighbors_MAC.add_data(mac)
-        self.text_neighbors_IP.add_data(ip)
-        self.text_neighbors_LQ.add_data(lq)
-
-    def clearNeighbor_handler(self):
-        self.text_neighbors_MAC.clear_all_data()
-        self.text_neighbors_IP.clear_all_data()
-        self.text_neighbors_LQ.clear_all_data()
-
     def display_neighbor(self, data_from_main, client_id):
         if data_from_main:
             status = data_from_main[0]
             data_length = len(data_from_main)
-            print(f"from client {client_id}")
             # For the rare scenario where the client has no neighbors
             if status and (data_length == 1):
-                print("true condition no neighbors")
-                self.clearNeighbor_handler()
+                self.clear_neighbor_handler()
             # For new subscribe entries
             elif status and (data_length > 1):
-                print("true condition")
                 neighMAC = data_from_main[1]["nMAC"]
                 neighIP = data_from_main[1]["nIP"]
                 neighLQ = data_from_main[1]["LQ"]
@@ -399,47 +397,36 @@ class DataFrame(ctk.CTkFrame):
                 # If there already is data in the temp variable,
                 # go to check what needs to be replaced
                 else:
-                    print("non empty neighbor list")
-                    '''
-                    tempIP = self._saved_neighbor_text[client_id]["nIP"]
-
-                    # Check if we need to replace
-                    if neighIP == tempIP:
-                        print("identical IPs, changing LQ")
-                        # If the list of IPs are identical, only update LQ
-                        self._saved_neighbor_text[client_id]["LQ"] = list(neighLQ)
-                        self.text_neighbors_LQ.update_data(list(neighLQ))
-                    # If they are not equal, replace every element
-                    else:
-                    '''
-                    print("non identical IP, change everything")
                     self._saved_neighbor_text[client_id] = {
                         "nMAC": list(neighMAC),
                         "nIP": list(neighIP),
                         "LQ": list(neighLQ)
                     }
-                    print(f"b4 add: {self._saved_neighbor_text[client_id]}")
                     self.add_neighbor_data(list(neighMAC),
                                            list(neighIP),
                                            list(neighLQ))
-                    print(f"after add: {self._saved_neighbor_text[client_id]}")
             elif not status:
-                print("false handler")
                 if ((len(self._saved_neighbor_text) > 0) and
                         (client_id in self._saved_neighbor_text)):
                     nMAC = self._saved_neighbor_text[client_id]["nMAC"]
                     nIP = self._saved_neighbor_text[client_id]["nIP"]
                     nLQ = self._saved_neighbor_text[client_id]["LQ"]
 
-                    print("save state")
-                    print(f"{nMAC}, {nIP}, {nLQ}")
                     self.add_neighbor_data(list(nMAC), list(nIP), list(nLQ))
                 else:
-                    print("emptiness")
-                    self.clearNeighbor_handler()
+                    self.clear_neighbor_handler()
 
+    def add_neighbor_data(self, mac, ip, lq):
+        self.text_neighbors_MAC.add_data(mac)
+        self.text_neighbors_IP.add_data(ip)
+        self.text_neighbors_LQ.add_data(lq)
 
-    def subscribeXYZ_handler(self):
+    def clear_neighbor_handler(self):
+        self.text_neighbors_MAC.clear_all_data()
+        self.text_neighbors_IP.clear_all_data()
+        self.text_neighbors_LQ.clear_all_data()
+
+    def subscribe_XYZ_handler(self):
         if len(self._current_device_info) > 0:
             device_ID = self._current_device_info["ID"]
             if not self.subscribeXYZ_pressed:
@@ -471,47 +458,34 @@ class DataFrame(ctk.CTkFrame):
                 new_X = data_from_main[1]['x']
                 new_Y = data_from_main[1]['y']
                 new_Z = data_from_main[1]['z']
+
                 self._saved_XYZ_text[client_id] = {
                     "x": new_X,
                     "y": new_Y,
                     "z": new_Z
                 }
-                self.text_label_X.configure(
-                    text=f"X: {new_X}"
-                )
-                self.text_label_Y.configure(
-                    text=f"Y: {new_Y}"
-                )
-                self.text_label_Z.configure(
-                    text=f"Z: {new_Z}"
-                )
+
+                self.add_XYZ_data(new_X, new_Y, new_Z)
             elif not status:
                 if ((len(self._saved_XYZ_text) > 0) and
                         (client_id in self._saved_XYZ_text)):
-                    self.text_label_X.configure(
-                        text=f"X: {self._saved_XYZ_text[client_id]['x']}"
-                    )
-                    self.text_label_Y.configure(
-                        text=f"Y: {self._saved_XYZ_text[client_id]['y']}"
-                    )
-                    self.text_label_Z.configure(
-                        text=f"Z: {self._saved_XYZ_text[client_id]['z']}"
-                    )
-                else:
-                    self.text_label_X.configure(
-                        text=f"X:"
-                    )
-                    self.text_label_Y.configure(
-                        text=f"Y:"
-                    )
-                    self.text_label_Z.configure(
-                        text=f"Z:"
-                    )
+                    saved_X = self._saved_XYZ_text[client_id]['x']
+                    saved_Y = self._saved_XYZ_text[client_id]['y']
+                    saved_Z = self._saved_XYZ_text[client_id]['z']
 
-    def clearXYZ_handler(self):
-        self.text_label_X.configure(text=f"")
-        self.text_label_Y.configure(text=f"")
-        self.text_label_Z.configure(text=f"")
+                    self.add_XYZ_data(saved_X, saved_Y, saved_Z)
+                else:
+                    self.clear_XYZ_handler()
+
+    def add_XYZ_data(self, x, y, z):
+        self.text_label_X.update_text(x)
+        self.text_label_Y.update_text(y)
+        self.text_label_Z.update_text(z)
+
+    def clear_XYZ_handler(self):
+        self.text_label_X.clear_text()
+        self.text_label_Y.clear_text()
+        self.text_label_Z.clear_text()
 
 # Part II: This is the frame class of the switches / nodes themselves
 # The left section with the green buttons
@@ -536,6 +510,9 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         self._current_ID = client_id
         self._current_client = self._client_dct[self._current_ID]
 
+        self.set_default_color()
+        self.set_button_color(self._current_ID)
+
         f_clk = True
         obj_ind = 0
 
@@ -551,16 +528,28 @@ class SwitchFrame(ctk.CTkScrollableFrame):
                                           self._client_dct,
                                           f_clk)
 
+    def set_default_color(self):
+        for i in self._client_btn:
+            self._client_btn[i].configure(fg_color=theme_green)
+
+    def set_button_color(self, client_id):
+        self._client_btn[client_id].configure(fg_color="cyan4")
+
     # This method adds newly arrived clients and creates a button
     # It uses dictionaries to quickly search for the ID
     def add_client_button(self, c_list):
         client_information = copy.copy(c_list)
         clientID = client_information["ID"]
+        print("here at MAC")
+        client_MAC = client_information["MAC"]
+        print(client_MAC)
 
         if clientID not in self._client_dct:
+            print("creating btn")
             btn = ctk.CTkButton(master=self,
-                                text=f"{clientID}",
+                                text=f"{client_MAC}",
                                 corner_radius=6)
+            print("gridding")
             btn.grid(column=0, padx=10, pady=(10, 0), sticky="ew")
 
             '''
@@ -576,7 +565,7 @@ class SwitchFrame(ctk.CTkScrollableFrame):
             dict{"ID from the switch": "btn": the buttons, "data": data from switch}
             client_dct[ID]["data"][your choice] 
             '''
-            self._client_btn[clientID] = {"btn": btn}
+            self._client_btn[clientID] = btn
             self._client_dct[clientID] = {"ID": client_information["ID"],
                                           "MAC": client_information["MAC"],
                                           "IP": client_information["IP"],
@@ -590,10 +579,10 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         clientID = client_information["ID"]
 
         if clientID in self._client_btn:
-            if self._client_btn[clientID]["btn"]:
-                self._client_btn[clientID]["btn"].destroy()
+            if self._client_btn[clientID]:
+                self._client_btn[clientID].destroy()
 
-                del self._client_btn[clientID]["btn"]
+                del self._client_btn[clientID]
 
 # Part I: This is the main class that handles all the incoming clients. Each client is treated as a thread
 class PubSubGUI(ctk.CTk):
@@ -603,7 +592,7 @@ class PubSubGUI(ctk.CTk):
         self._Port = port
 
         self.title("Publish Subscribe WMN GUI")
-        self.geometry("1000x600")
+        self.geometry("1100x600")
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -676,8 +665,9 @@ class PubSubGUI(ctk.CTk):
         # If we have a current client, update the clients
         if current_client_ID and (current_client_ID in self._client_updated):
             if self._client_updated[current_client_ID]["updated"]:
-                self.data_frame.display_neighbor(self._client_dct[current_client_ID]["Neighbor_Tuple"],
-                                                 current_client_ID)
+                # UNDER CONSTRUCTION
+                #self.data_frame.display_neighbor(self._client_dct[current_client_ID]["Neighbor_Tuple"],
+                #                                 current_client_ID)
                 self.data_frame.display_XYZ(self._client_dct[current_client_ID]["XYZ_Tuple"],
                                             current_client_ID)
                 self._client_updated[current_client_ID]["updated"] = False
@@ -701,6 +691,7 @@ class PubSubGUI(ctk.CTk):
         first_connection = True
         bat_pack = {}
         currentID = 0
+        bat_mac = ""
 
         try:
             while True:
@@ -711,9 +702,12 @@ class PubSubGUI(ctk.CTk):
                 currentID = bat_pack["ID"]
 
                 if first_connection:
+                    print("first connection")
                     # If it's the first connection, we add the client as a button
                     self.switch_frame.add_client_button(bat_pack)
-                    self._client_MAC_IP[bat_pack["MAC"]] = bat_pack["IP"]
+                    print("adding MAC")
+                    bat_mac = bat_pack["MAC"]
+                    self._client_MAC_IP[bat_mac] = bat_pack["IP"]
                     first_connection = False
                 else:
                     # If it isn't, client dictionary is updated
@@ -722,7 +716,6 @@ class PubSubGUI(ctk.CTk):
                     self._client_updated[currentID] = {
                         "updated": True
                     }
-
                 #self.print_client_dct(bat_pack["ID"])
 
                 # Request handling, checking our current dictionary if we need to ask
@@ -752,6 +745,9 @@ class PubSubGUI(ctk.CTk):
 
         if currentID in self._client_dct:
             del self._client_dct[currentID]
+
+        if bat_mac in self._client_MAC_IP:
+            del self._client_MAC_IP[bat_mac]
 
         client_obj.close()
 
