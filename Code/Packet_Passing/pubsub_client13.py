@@ -24,6 +24,8 @@ server_PORT = 9559
 nic_name = "wlp2s0"
 br_name = "br_1"
 
+test_condition = 1
+
 def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
 
@@ -32,12 +34,22 @@ class ClientHandler:
         self._ADDR = addr
         self._Port = port
         self.device_id = gen_random_number(1, 999)
-        self._mac = self.retrieve_client_MAC()
+
+        if test_condition == 1:
+            self._ip = "192.168.1.1"
+            self._mac = "04:56:78:AA:22:82"
+        if test_condition == 2:
+            self._ip = "192.168.1.2"
+            self._mac = "66:16:U8:A5:02:00"
+        if test_condition == 3:
+            self._ip = "192.168.1.3"
+            self._mac = "01:34:GH:BG:00:D9"
+
         # This is the main dictionary packet
         self.device_info = {
-            "ID": self.retrieve_ID(),
+            "ID": self.device_id,
             "MAC": self._mac,
-            "IP": self.retrieve_client_IP(),
+            "IP": self._ip,
             "Neighbor_Tuple": [False],
             "XYZ_Tuple": [False]
         }
@@ -95,9 +107,29 @@ class ClientHandler:
                 if line.lstrip().startswith("*"):
                     elements = line.split()
 
-                    if len(elements) >= 4:
-                        neigh_mac.append(elements[1])
-                        neigh_LQ.append(elements[3].strip("()"))
+                    if len(elements) >= 5:
+                        print(elements)
+                        current_location = elements[1]
+                        if elements[3] == '(':
+                            link_quality = elements[4].strip(")")
+                            next_hop = elements[5]
+                        else:
+                            link_quality = elements[3].strip("()")
+                            next_hop = elements[4]
+                        print(f"current = {current_location}")
+                        print(f"nh = {next_hop}")
+                        print(link_quality)
+                        if link_quality:
+                            # If the next hop is the same as the current, no need
+                            # to put the next hop
+                            if current_location == next_hop:
+                                neigh_mac.append(current_location)
+                            # Else add the next hop
+                            else:
+                                print("else")
+                                neigh_mac.append([current_location, next_hop])
+
+                            neigh_LQ.append(link_quality)
 
             return neigh_mac, neigh_LQ
 
@@ -110,8 +142,9 @@ class ClientHandler:
 
         try:
             output = subprocess.run(["sudo", "ovs-vsctl", "show"],
-                                          capture_output=True,
-                                          text=True)
+                                    capture_output=True,
+                                    text=True)
+
             text_output = output.stdout.strip()
 
             for line in text_output.split("\n"):
@@ -153,35 +186,30 @@ class ClientHandler:
                         break
 
         return switchID
-    '''
-    # Placeholder randomizer
-    # TODO: Replace with actual neighbor taker from B.A.T.M.A.N
-    def random_device_neighbors(self):
-        rand_size = gen_random_number(1, 3)
-        randMac = []
-        randIP = []
-        randLQ = []
 
-        for i in range(rand_size):
-            randMac.append(f"00:B1:99:DD:86:{gen_random_number(10,99)}")
-            randIP.append(f"192.168.1.{gen_random_number(1,255)}")
-            randLQ.append(f"{gen_random_number(1,250)}")
+    def retrieve_n_testing(self):
+        Mac = []
+        LQ = []
+        if test_condition == 1:
+            Mac = [
+                ["9c:b6:d0:df:13:8d", "66:16:U8:A5:02:00"],
+                "66:16:U8:A5:02:00"
+            ]
+            LQ = [gen_random_number(1, 250), gen_random_number(1, 250)]
+        elif test_condition == 2:
+            Mac = [
+                "9c:b6:d0:df:13:8d",
+                ["04:56:78:AA:22:82", "66:16:U8:A5:02:00"]
+            ]
+            LQ = [gen_random_number(1, 250), gen_random_number(1, 250)]
 
-        device_neighbors = {
-            "nMAC": randMac,
-            "nIP": randIP,
-            "LQ": randLQ
-        }
+        return Mac, LQ
 
-        return device_neighbors
-    '''
     def return_device_neighbors(self):
-        Mac, LQ = self.retrieve_neighbors()
-        IP = [""] * len(Mac)
+        Mac, LQ = self.retrieve_n_testing()
 
         device_neighbors = {
             "nMAC": Mac,
-            "nIP": IP,
             "LQ": LQ
         }
 
@@ -228,7 +256,7 @@ class ClientHandler:
                     json_data = json.dumps(self.device_info)
                     client_socket.sendall(json_data.encode('utf-8'))
 
-                    time.sleep(3)
+                    time.sleep(2)
 
             except sck.error:
                 print(f"Error: {sck.error}")
@@ -236,11 +264,17 @@ class ClientHandler:
                 client_socket.close()
                 time.sleep(5)
 
+def get_condition():
+    user_input = input("Condition [1,2]: ")
+
+    if user_input in ('1', '2'):
+        return int(user_input)
+    else:
+        print("Invalid input")
+        return get_condition()
 
 if __name__ == "__main__":
+    #test_condition = get_condition()
     client = ClientHandler(server_ADDR, server_PORT)
-    #print(client.retrieve_ID())
-    #print(client.retrieve_client_IP())
-    #print(client.retrieve_client_MAC())
-    print(client.return_device_neighbors())
+    print(client.retrieve_neighbors())
     #client.connection()
