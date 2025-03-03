@@ -1,13 +1,10 @@
 import copy
-
 import customtkinter as ctk
 import time
 import socket as sck
 import threading
 import json
 import subprocess
-
-from customtkinter import set_default_color_theme
 
 '''
 Code sections are labeled in parts. Please start at 
@@ -72,12 +69,15 @@ class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
         # If local data is empty
         if not local_length:
             for i in new_data:
+                self.add_label(i)
+                '''
                 new_label = ctk.CTkLabel(master=self,
                                          text=f"{i}",
                                          fg_color="gray30",
                                          corner_radius=6)
                 new_label.grid(column=0, padx=10, pady=(10, 0), sticky="we")
                 self._local_widgets.append(new_label)
+                '''
         # If lengths of local data > new data
         elif local_length > new_data_length:
             change_length = local_length - new_data_length
@@ -95,6 +95,7 @@ class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
         elif local_length == new_data_length:
             self.update_data(new_data)
 
+        # TODO: update all btns with text, controller, to become golden
         # Update local data
         self._local_data = list(new_data)
 
