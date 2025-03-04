@@ -44,7 +44,7 @@ def retrieve_client_MAC():
         print(f"Error trying to get the MAC: {e}")
         return None
 
-server_ADDR = get_local_ip()
+server_ADDR = "100.100.1.5"
 nic_name = "wlp2s0"
 server_PORT = 9559
 server_MAC = retrieve_client_MAC()
@@ -364,7 +364,8 @@ class DataFrame(ctk.CTkFrame):
         self.color_neighbors()
         self.color_XYZ()
 
-    def update_client_ID(self, device_info,
+    def update_client_ID(self,
+                         device_info,
                          client_dct,
                          first_click):
 
@@ -449,7 +450,8 @@ class DataFrame(ctk.CTkFrame):
                         "LQ": list(neighLQ)
                     }
                     self.add_neighbor_data(list(neighMAC),
-                                           list(neighLQ))
+                                           list(neighLQ),
+                                           self._current_device_info["MAC"])
                 # If there already is data in the temp variable,
                 # go to check what needs to be replaced
                 else:
@@ -458,7 +460,8 @@ class DataFrame(ctk.CTkFrame):
                         "LQ": list(neighLQ)
                     }
                     self.add_neighbor_data(list(neighMAC),
-                                           list(neighLQ))
+                                           list(neighLQ),
+                                           self._current_device_info["MAC"])
             elif not status:
                 if ((len(self._saved_neighbor_text) > 0) and
                         (client_id in self._saved_neighbor_text)):
@@ -466,33 +469,32 @@ class DataFrame(ctk.CTkFrame):
                     nLQ = self._saved_neighbor_text[client_id]["LQ"]
 
                     self.add_neighbor_data(list(nMAC),
-                                           list(nLQ))
+                                           list(nLQ),
+                                           self._current_device_info["MAC"])
+
                 else:
                     self.clear_neighbor_handler()
 
-    def append_on_type(self, type_cond, data):
+    def append_on_type(self, type_cond, mac_addr):
         global MAC_2_IP_ID
         return_value = ""
 
         if type_cond == 0:
-
-            return_value = MAC_2_IP_ID[data]["ID"]
+            return_value = MAC_2_IP_ID[mac_addr]["ID"]
         elif type_cond == 1:
-            return_value = data
+            return_value = mac_addr
         elif type_cond == 2:
-            return_value = MAC_2_IP_ID[data]["IP"]
+            return_value = MAC_2_IP_ID[mac_addr]["IP"]
 
         return return_value
 
-    def add_neighbor_data(self, mac, lq):
+    def add_neighbor_data(self, mac, lq, current_mac):
         global Type_Change
         global MAC_2_IP_ID
         origin_list = []
         color_list_or = []
         next_hop_list = []
         color_list_nh = []
-        print(mac)
-        print(lq)
         for m in mac:
             if isinstance(m, list):
                 print(f"array: {m}")
@@ -518,8 +520,10 @@ class DataFrame(ctk.CTkFrame):
                         color_list_or.append("gray30")
             else:
                 if m in MAC_2_IP_ID:
-                    next_hop_list.append("Server")
-                    color_list_nh.append("dark goldenrod")
+                    next_hop_list.append(
+                        self.append_on_type(Type_Change[0], current_mac)
+                    )
+                    color_list_nh.append("gray30")
                     origin_list.append(
                         self.append_on_type(Type_Change[0], m)
                     )

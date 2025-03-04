@@ -18,13 +18,10 @@ def get_local_ip():
         local_ip = "Unable to determine local IP"
     return local_ip
 
-server_ADDR = "192.168.1.114"
+server_ADDR = "100.100.1.5"
 server_PORT = 9559
 # IMPORTANT: set the NIC that B.A.T.M.A.N is using here
-nic_name = "wlp2s0"
-br_name = "br_1"
-
-test_condition = 1
+nic_name = "wlan0"
 
 def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
@@ -33,18 +30,9 @@ class ClientHandler:
     def __init__(self, addr, port):
         self._ADDR = addr
         self._Port = port
-        self.device_id = gen_random_number(1, 999)
-
-        if test_condition == 1:
-            self._ip = "192.168.1.1"
-            self._mac = "04:56:78:AA:22:82"
-        if test_condition == 2:
-            self._ip = "192.168.1.2"
-            self._mac = "66:16:U8:A5:02:00"
-        if test_condition == 3:
-            self._ip = "192.168.1.3"
-            self._mac = "01:34:GH:BG:00:D9"
-
+        self._mac = self.retrieve_client_MAC()
+        self._ip = self.retrieve_client_IP()
+        self.device_id = self.retrieve_client_ID()
         # This is the main dictionary packet
         self.device_info = {
             "ID": self.device_id,
@@ -94,50 +82,7 @@ class ClientHandler:
             print(f"Error trying to get the MAC: {e}")
             return None
 
-    def retrieve_neighbors(self):
-        try:
-            output = subprocess.run(["sudo", "batctl", "o"],
-                                    capture_output=True,
-                                    text=True)
-            text_output = output.stdout.strip()
-            neigh_mac = []
-            neigh_LQ = []
-
-            for line in text_output.split("\n"):
-                if line.lstrip().startswith("*"):
-                    elements = line.split()
-
-                    if len(elements) >= 5:
-                        print(elements)
-                        current_location = elements[1]
-                        if elements[3] == '(':
-                            link_quality = elements[4].strip(")")
-                            next_hop = elements[5]
-                        else:
-                            link_quality = elements[3].strip("()")
-                            next_hop = elements[4]
-                        print(f"current = {current_location}")
-                        print(f"nh = {next_hop}")
-                        print(link_quality)
-                        if link_quality:
-                            # If the next hop is the same as the current, no need
-                            # to put the next hop
-                            if current_location == next_hop:
-                                neigh_mac.append(current_location)
-                            # Else add the next hop
-                            else:
-                                print("else")
-                                neigh_mac.append([current_location, next_hop])
-
-                            neigh_LQ.append(link_quality)
-
-            return neigh_mac, neigh_LQ
-
-        except Exception as e:
-            print(f"Error trying to get BAT info: {e}")
-            return None
-
-    def retrieve_ID(self):
+    def retrieve_client_ID(self):
         br = ""
 
         try:
@@ -187,26 +132,47 @@ class ClientHandler:
 
         return switchID
 
-    def retrieve_n_testing(self):
-        Mac = []
-        LQ = []
-        if test_condition == 1:
-            Mac = [
-                ["9c:b6:d0:df:13:8d", "66:16:U8:A5:02:00"],
-                "66:16:U8:A5:02:00"
-            ]
-            LQ = [gen_random_number(1, 250), gen_random_number(1, 250)]
-        elif test_condition == 2:
-            Mac = [
-                "9c:b6:d0:df:13:8d",
-                ["04:56:78:AA:22:82", "66:16:U8:A5:02:00"]
-            ]
-            LQ = [gen_random_number(1, 250), gen_random_number(1, 250)]
+    def retrieve_client_neighbors(self):
+        try:
+            output = subprocess.run(["sudo", "batctl", "o"],
+                                    capture_output=True,
+                                    text=True)
+            text_output = output.stdout.strip()
+            neigh_mac = []
+            neigh_LQ = []
 
-        return Mac, LQ
+            for line in text_output.split("\n"):
+                if line.lstrip().startswith("*"):
+                    elements = line.split()
+
+                    if len(elements) >= 5:
+                        current_location = elements[1]
+                        if elements[3] == '(':
+                            link_quality = elements[4].strip(")")
+                            next_hop = elements[5]
+                        else:
+                            link_quality = elements[3].strip("()")
+                            next_hop = elements[4]
+                        if link_quality:
+                            # If the next hop is the same as the current, no need
+                            # to put the next hop
+                            if current_location == next_hop:
+                                neigh_mac.append(current_location)
+                            # Else add the next hop
+                            else:
+                                print("else")
+                                neigh_mac.append([current_location, next_hop])
+
+                            neigh_LQ.append(link_quality)
+
+            return neigh_mac, neigh_LQ
+
+        except Exception as e:
+            print(f"Error trying to get BAT info: {e}")
+            return None
 
     def return_device_neighbors(self):
-        Mac, LQ = self.retrieve_n_testing()
+        Mac, LQ = self.retrieve_client_neighbors()
 
         device_neighbors = {
             "nMAC": Mac,
@@ -252,7 +218,7 @@ class ClientHandler:
 
                     # TODO: Optimize this to make it only send the TUPLES. The other datas should be static
                     # TODO: do not troll and try to actually do this
-                    print(f"To server: {self.device_info}")
+                    print(f"To server:\n{self.device_info}")
                     json_data = json.dumps(self.device_info)
                     client_socket.sendall(json_data.encode('utf-8'))
 
@@ -264,17 +230,6 @@ class ClientHandler:
                 client_socket.close()
                 time.sleep(5)
 
-def get_condition():
-    user_input = input("Condition [1,2]: ")
-
-    if user_input in ('1', '2'):
-        return int(user_input)
-    else:
-        print("Invalid input")
-        return get_condition()
-
 if __name__ == "__main__":
-    #test_condition = get_condition()
     client = ClientHandler(server_ADDR, server_PORT)
-    print(client.retrieve_neighbors())
-    #client.connection()
+    client.connection()
