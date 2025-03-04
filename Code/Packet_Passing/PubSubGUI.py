@@ -4,6 +4,7 @@ import time
 import socket as sck
 import threading
 import json
+import random
 import subprocess
 
 '''
@@ -44,7 +45,11 @@ def retrieve_client_MAC():
         print(f"Error trying to get the MAC: {e}")
         return None
 
-server_ADDR = "100.100.1.5"
+def gen_random_number(flr, ceil):
+    return random.randint(flr, ceil)
+
+
+server_ADDR = get_local_ip()
 nic_name = "wlp2s0"
 server_PORT = 9559
 server_MAC = retrieve_client_MAC()
@@ -53,10 +58,20 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 theme_green = "#2ca373"
 
-MAC_2_IP_ID = {}
+MAC_2_IP_ID_CLR = {}
 # Types: 0 = RYU ID, 1 = MAC, 2 = IP
 # Boolean for if updated
 Type_Change = [1, False]
+
+# 20 total different colors. Please add more if you need more variation.
+# CHECK HERE FOR SPELLING ERRORS
+color_list = [
+    "midnight blue", "cornflower blue", "dodger blue", "dark green", "dark olive green",
+    "forest green", "olive drab", "indian red", "saddle brown", "orange red",
+    "hot pink", "pale violet red", "hot pink", "dark orchid", "medium purple",
+    "AntiqueWhite4", "NavajoWhite4", "LightGoldenrod4", "burlywood4", "brown4",
+    "maroon4", "plum4", "gray1", "gray15", "gray60"
+]
 
 class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
     def __init__(self, master, title):
@@ -96,14 +111,7 @@ class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
         if not local_length:
             for i in new_data:
                 self.add_label(i)
-                '''
-                new_label = ctk.CTkLabel(master=self,
-                                         text=f"{i}",
-                                         fg_color="gray30",
-                                         corner_radius=6)
-                new_label.grid(column=0, padx=10, pady=(10, 0), sticky="we")
-                self._local_widgets.append(new_label)
-                '''
+
         # If lengths of local data > new data
         elif local_length > new_data_length:
             change_length = local_length - new_data_length
@@ -183,7 +191,6 @@ class TitleTextFrame(ctk.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.title_display = ctk.CTkButton(master=self,
                                            text=self._title,
-                                           fg_color="cyan4",
                                            corner_radius=6,
                                            command=lambda: self.change_display_type(),
                                            width=35)
@@ -221,6 +228,9 @@ class TitleTextFrame(ctk.CTkFrame):
 
         Type_Change[1] = True
 
+    def change_color(self, clr):
+        self.title_display.configure(fg_color=clr)
+
 # Part III: This is the data frame that is effected
 # by the node switches (sub/unsub is here)
 class DataFrame(ctk.CTkFrame):
@@ -228,6 +238,7 @@ class DataFrame(ctk.CTkFrame):
         super().__init__(master)
         self._client_dct = client_dct
         self._current_ID = 0
+        self._current_MAC = ""
         self._saved_neighbor_text = {}
         self._saved_XYZ_text = {}
         self._current_device_info = {}
@@ -353,17 +364,6 @@ class DataFrame(ctk.CTkFrame):
         for clientID, sub_dict_client in self._client_dct.items():
             print(f"{clientID}: {sub_dict_client}")
 
-    def dropped_client_handler(self, client_id):
-        # TODO: add feature to remove client_id from the saved list
-        self.subscribeNeighbor_pressed = False
-        self.clear_neighbor_handler()
-
-        self.subscribeXYZ_pressed = False
-        self.clear_XYZ_handler()
-
-        self.color_neighbors()
-        self.color_XYZ()
-
     def update_client_ID(self,
                          device_info,
                          client_dct,
@@ -372,6 +372,7 @@ class DataFrame(ctk.CTkFrame):
         self._current_device_info = device_info
         self._client_dct = client_dct
         self._current_ID = self._current_device_info['ID']
+        self._current_MAC = self._current_device_info['MAC']
 
         # This is the default states
         if first_click:
@@ -405,6 +406,12 @@ class DataFrame(ctk.CTkFrame):
         self.titleID.update_text(self._current_device_info['ID'])
         self.titleMAC.update_text(self._current_device_info['MAC'])
         self.titleIP.update_text(self._current_device_info['IP'])
+
+        current_color = MAC_2_IP_ID_CLR[self._current_MAC]["Color"]
+
+        self.titleID.change_color(current_color)
+        self.titleMAC.change_color(current_color)
+        self.titleIP.change_color(current_color)
 
         self.color_neighbors()
         self.color_XYZ()
@@ -444,14 +451,12 @@ class DataFrame(ctk.CTkFrame):
                 neighLQ = data_from_main[1]["LQ"]
                 # If the temporary data empty, add to it
                 if client_id not in self._saved_neighbor_text:
-                    print("empty save neighbors add")
                     self._saved_neighbor_text[client_id] = {
                         "nMAC": list(neighMAC),
                         "LQ": list(neighLQ)
                     }
                     self.add_neighbor_data(list(neighMAC),
-                                           list(neighLQ),
-                                           self._current_device_info["MAC"])
+                                           list(neighLQ))
                 # If there already is data in the temp variable,
                 # go to check what needs to be replaced
                 else:
@@ -460,8 +465,7 @@ class DataFrame(ctk.CTkFrame):
                         "LQ": list(neighLQ)
                     }
                     self.add_neighbor_data(list(neighMAC),
-                                           list(neighLQ),
-                                           self._current_device_info["MAC"])
+                                           list(neighLQ))
             elif not status:
                 if ((len(self._saved_neighbor_text) > 0) and
                         (client_id in self._saved_neighbor_text)):
@@ -469,67 +473,87 @@ class DataFrame(ctk.CTkFrame):
                     nLQ = self._saved_neighbor_text[client_id]["LQ"]
 
                     self.add_neighbor_data(list(nMAC),
-                                           list(nLQ),
-                                           self._current_device_info["MAC"])
+                                           list(nLQ))
 
                 else:
                     self.clear_neighbor_handler()
 
     def append_on_type(self, type_cond, mac_addr):
-        global MAC_2_IP_ID
+        global MAC_2_IP_ID_CLR
         return_value = ""
 
         if type_cond == 0:
-            return_value = MAC_2_IP_ID[mac_addr]["ID"]
+            return_value = MAC_2_IP_ID_CLR[mac_addr]["ID"]
         elif type_cond == 1:
             return_value = mac_addr
         elif type_cond == 2:
-            return_value = MAC_2_IP_ID[mac_addr]["IP"]
+            return_value = MAC_2_IP_ID_CLR[mac_addr]["IP"]
 
         return return_value
 
-    def add_neighbor_data(self, mac, lq, current_mac):
+    def add_neighbor_data(self, mac, lq):
         global Type_Change
-        global MAC_2_IP_ID
+        global MAC_2_IP_ID_CLR
+
+        temp_lq = list(lq)
+
         origin_list = []
         color_list_or = []
+
         next_hop_list = []
         color_list_nh = []
-        for m in mac:
-            if isinstance(m, list):
-                if m[1] in MAC_2_IP_ID:
-                    next_hop_list.append(
-                        self.append_on_type(Type_Change[0], m[1])
-                    )
-                    color_list_nh.append("gray30")
 
-                if m[0] in MAC_2_IP_ID:
+        link_quality_list = []
+
+        for index, m in enumerate(mac):
+            if isinstance(m, list):
+                if m[0] in MAC_2_IP_ID_CLR:
+                    # Origin list handling
                     origin_list.append(
                         self.append_on_type(Type_Change[0], m[0])
                     )
-                    if m[0] == server_MAC:
-                        color_list_or.append("dark goldenrod")
-                    else:
-                        color_list_or.append("gray30")
-            else:
-                if m in MAC_2_IP_ID:
-                    next_hop_list.append(
-                        self.append_on_type(Type_Change[0], current_mac)
+                    color_list_or.append(
+                        MAC_2_IP_ID_CLR[m[0]]["Color"]
                     )
-                    color_list_nh.append("gray30")
+
+                    # Next hop list handling
+                    if m[1] in MAC_2_IP_ID_CLR:
+                        next_hop_list.append(
+                            self.append_on_type(Type_Change[0], m[1])
+                        )
+                        color_list_nh.append(
+                            MAC_2_IP_ID_CLR[m[1]]["Color"]
+                        )
+
+                    # Link quality list handling
+                    link_quality_list.append(temp_lq[index])
+            else:
+                if m in MAC_2_IP_ID_CLR:
+                    # Origin list handling
                     origin_list.append(
                         self.append_on_type(Type_Change[0], m)
                     )
-                    if m == server_MAC:
-                        color_list_or.append("dark goldenrod")
-                    else:
-                        color_list_or.append("gray30")
+
+                    color_list_or.append(MAC_2_IP_ID_CLR[m]["Color"])
+
+                    # Next hop list handling
+                    next_hop_list.append(
+                        self.append_on_type(Type_Change[0], self._current_MAC)
+                    )
+
+                    color_list_nh.append(
+                        MAC_2_IP_ID_CLR[self._current_MAC]["Color"]
+                    )
+
+                    # Link quality list handling
+                    link_quality_list.append(temp_lq[index])
 
         self.text_neighbors_Origin.add_data(origin_list)
         self.text_neighbors_Origin.update_color(color_list_or)
         self.text_neighbors_Next_Hop.add_data(next_hop_list)
         self.text_neighbors_Next_Hop.update_color(color_list_nh)
-        self.text_neighbors_LQ.add_data(lq)
+        self.text_neighbors_LQ.add_data(link_quality_list)
+        self.text_neighbors_LQ.update_color(color_list_or)
 
     def clear_neighbor_handler(self):
         self.text_neighbors_Origin.clear_all_data()
@@ -631,19 +655,22 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         self._first_click_tracker = []
         self._client_btn = {}
         self.grid_columnconfigure(0, weight=1)
-        self.title = ctk.CTkLabel(master=self, text="B.A.T.M.A.N Switches", fg_color="gray30", corner_radius=6)
+        self.title = ctk.CTkLabel(master=self,
+                                  text="Switches / Destinations",
+                                  fg_color="gray30",
+                                  corner_radius=6)
         self.title.grid(column=0, padx=10, pady=(10, 0), sticky="ew")
 
     def return_current_ID(self):
         return self._current_ID
 
+    def change_current_ID(self, new_id):
+        self._current_ID = new_id
+
     def set_current_client(self, client_id):
         # device_info packet from client code
         self._current_ID = client_id
         self._current_client = self._client_dct[self._current_ID]
-
-        self.set_default_color()
-        self.set_button_color(self._current_ID)
 
         f_clk = True
         obj_ind = 0
@@ -660,32 +687,27 @@ class SwitchFrame(ctk.CTkScrollableFrame):
                                           self._client_dct,
                                           f_clk)
 
-    def set_default_color(self):
-        for i in self._client_btn:
-            self._client_btn[i].configure(fg_color=theme_green)
-
-    def set_button_color(self, client_id):
-        self._client_btn[client_id].configure(fg_color="cyan4")
-
     # This method adds newly arrived clients and creates a button
     # It uses dictionaries to quickly search for the ID
-    def add_client_button(self, c_list):
+    def add_client_button(self, c_dict):
         global Type_Change
-        global MAC_2_IP_ID
-        client_information = copy.copy(c_list)
+        global MAC_2_IP_ID_CLR
+
+        client_information = copy.copy(c_dict)
         clientID = client_information["ID"]
         clientMAC = client_information["MAC"]
 
         if clientID not in self._client_dct:
             btn = ctk.CTkButton(master=self,
-                                corner_radius=6)
+                                corner_radius=6,
+                                fg_color=MAC_2_IP_ID_CLR[clientMAC]["Color"])
 
             if Type_Change[0] == 0:
                 btn.configure(text=f"{clientID}")
             elif Type_Change[0] == 1:
                 btn.configure(text=f"{clientMAC}")
             elif Type_Change[0] == 2:
-                clientIP = MAC_2_IP_ID[clientMAC]["IP"]
+                clientIP = MAC_2_IP_ID_CLR[clientMAC]["IP"]
                 btn.configure(text=f"{clientIP}")
 
             btn.grid(column=0, padx=10, pady=(10, 0), sticky="ew")
@@ -699,11 +721,13 @@ class SwitchFrame(ctk.CTkScrollableFrame):
             btn.configure(command=lambda x=clientID: self.set_current_client(x))
 
             self._client_btn[clientID] = btn
-            self._client_dct[clientID] = {"ID": client_information["ID"],
-                                          "MAC": client_information["MAC"],
-                                          "IP": client_information["IP"],
-                                          "Neighbor_Tuple": client_information["Neighbor_Tuple"],
-                                          "XYZ_Tuple": client_information["XYZ_Tuple"]}
+            self._client_dct[clientID] = {
+                "ID": client_information["ID"],
+                "MAC": client_information["MAC"],
+                "IP": client_information["IP"],
+                "Neighbor_Tuple": client_information["Neighbor_Tuple"],
+                "XYZ_Tuple": client_information["XYZ_Tuple"]
+            }
             self._first_click_tracker.append([clientID, True])
 
     # This method deletes client button and clears it from the dictionary
@@ -714,6 +738,7 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         if clientID in self._client_btn:
             if self._client_btn[clientID]:
                 self._client_btn[clientID].destroy()
+                print(f"[{clientID}] has been deleted")
 
                 del self._client_btn[clientID]
 
@@ -722,22 +747,29 @@ class SwitchFrame(ctk.CTkScrollableFrame):
         for clientID in self._client_btn:
             # ID type
             if _type == 0:
-                self._client_btn[clientID].configure(text=clientID)
+                self._client_btn[clientID].configure(
+                    text=clientID
+                )
             # MAC type
             elif _type == 1:
-                self._client_btn[clientID].configure(text=client_dct[clientID]["MAC"])
+                self._client_btn[clientID].configure(
+                    text=client_dct[clientID]["MAC"]
+                )
             # IP type
             elif _type == 2:
-                self._client_btn[clientID].configure(text=client_dct[clientID]["IP"])
+                self._client_btn[clientID].configure(
+                    text=client_dct[clientID]["IP"]
+                )
 
 # Part I: This is the main class that handles all the incoming clients. Each client is treated as a thread
 class PubSubGUI(ctk.CTk):
     def __init__(self, addr, port):
         super().__init__()
-        global MAC_2_IP_ID
-        MAC_2_IP_ID[server_MAC] = {
+        global MAC_2_IP_ID_CLR
+        MAC_2_IP_ID_CLR[server_MAC] = {
             "IP": server_ADDR,
-            "ID": "Server"
+            "ID": "SERVER",
+            "Color": "dark goldenrod"
         }
         self._ADDR = addr
         self._Port = port
@@ -749,6 +781,7 @@ class PubSubGUI(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self._client_dct = {}
+
         self._client_updated = {}
 
         # object for part III
@@ -759,6 +792,18 @@ class PubSubGUI(ctk.CTk):
         self.switch_frame = SwitchFrame(self, self.data_frame, self._client_dct)
         self.switch_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
+        # Initialization. The first node should ALWAYS be the server
+        server_dict = {
+            "ID": "SERVER",
+            "MAC": server_MAC,
+            "IP": server_ADDR,
+            "Neighbor_Tuple": [False],
+            "XYZ_Tuple": [False]
+        }
+
+        self.switch_frame.add_client_button(server_dict)
+        self.switch_frame.set_current_client("SERVER")
+
         time.sleep(0.01)
         BAT_server = threading.Thread(target=self.BATMAN_server_handler, args=())
         BAT_server.start()
@@ -768,7 +813,6 @@ class PubSubGUI(ctk.CTk):
 
     def update_client_dct(self, client_information):
         clientID = client_information["ID"]
-
         if clientID in self._client_dct:
             server_neighbor_tuple = self._client_dct[clientID]["Neighbor_Tuple"][0]
             client_neighbor_tuple = client_information["Neighbor_Tuple"][0]
@@ -777,33 +821,133 @@ class PubSubGUI(ctk.CTk):
 
             if server_neighbor_tuple and client_neighbor_tuple:
                 self._client_dct[clientID]["Neighbor_Tuple"] = copy.copy(client_information["Neighbor_Tuple"])
-            elif not server_neighbor_tuple:
-                self._client_dct[clientID]["Neighbor_Tuple"] = [False]
             if server_XYZ_tuple and client_XYZ_tuple:
                 self._client_dct[clientID]["XYZ_Tuple"] = copy.copy(client_information["XYZ_Tuple"])
-            elif not server_XYZ_tuple:
-                self._client_dct[clientID]["XYZ_Tuple"] = [False]
+
+    def request_server_neighbors(self):
+        try:
+            output = subprocess.run(["sudo", "batctl", "o"],
+                                    capture_output=True,
+                                    text=True)
+            text_output = output.stdout.strip()
+            neigh_mac = []
+            neigh_LQ = []
+
+            for line in text_output.split("\n"):
+                if line.lstrip().startswith("*"):
+                    elements = line.split()
+
+                    if len(elements) >= 5:
+                        current_location = elements[1]
+                        if elements[3] == '(':
+                            link_quality = elements[4].strip(")")
+                            next_hop = elements[5]
+                        else:
+                            link_quality = elements[3].strip("()")
+                            next_hop = elements[4]
+                        if link_quality:
+                            # If the next hop is the same as the current, no need
+                            # to put the next hop
+                            if current_location == next_hop:
+                                neigh_mac.append(current_location)
+                            # Else add the next hop
+                            else:
+                                neigh_mac.append([current_location, next_hop])
+
+                            neigh_LQ.append(link_quality)
+            device_neighbors = {
+                "nMAC": neigh_mac,
+                "LQ": neigh_LQ
+            }
+
+            return device_neighbors
+
+        except Exception as e:
+            print(f"Error trying to get BAT info: {e}")
+            return None
+
+    def request_temp_neighbors(self):
+        Mac = ["66:16:U8:A5:02:00", ["04:56:78:AA:22:82", "66:16:U8:A5:02:00"]]
+        LQ = [gen_random_number(1, 999), gen_random_number(1, 999)]
+        return Mac, LQ
 
     def client_frames_handler(self):
         current_client_ID = self.switch_frame.return_current_ID()
-        # Updating the client neighbor information and the XYZ
-        if current_client_ID and (current_client_ID in self._client_updated):
-            if self._client_updated[current_client_ID]["updated"]:
-                self.data_frame.display_neighbor(self._client_dct[current_client_ID]["Neighbor_Tuple"],
-                                                 current_client_ID)
-                self.data_frame.display_XYZ(self._client_dct[current_client_ID]["XYZ_Tuple"],
-                                            current_client_ID)
-                self._client_updated[current_client_ID]["updated"] = False
+        if current_client_ID == "SERVER":
+            if self._client_dct[current_client_ID]["Neighbor_Tuple"][0]:
+                local_mac, local_lq = self.request_temp_neighbors()
+                device_neighbors = {
+                    "nMAC": local_mac,
+                    "LQ": local_lq
+                }
 
-        # Update the type
-        if current_client_ID and (current_client_ID in self._client_updated):
+                self._client_dct[current_client_ID]["Neighbor_Tuple"] = [
+                    True,
+                    device_neighbors
+                ]
+            else:
+                self._client_dct[current_client_ID]["Neighbor_Tuple"] = [False]
+
+            if self._client_dct[current_client_ID]["XYZ_Tuple"][0]:
+                device_xyz = {
+                    "x": gen_random_number(0, 999),
+                    "y": gen_random_number(0, 999),
+                    "z": gen_random_number(0, 999)
+                }
+
+                self._client_dct[current_client_ID]["XYZ_Tuple"] = [
+                    True,
+                    device_xyz
+                ]
+            else:
+                self._client_dct[current_client_ID]["XYZ_Tuple"] = [False]
+
+            self.data_frame.display_neighbor(
+                self._client_dct[current_client_ID]["Neighbor_Tuple"],
+                current_client_ID
+            )
+
+            self.data_frame.display_XYZ(
+                self._client_dct[current_client_ID]["XYZ_Tuple"],
+                current_client_ID
+            )
+
+            # Update the type
             if Type_Change[1]:
-                self.switch_frame.change_type(Type_Change[0], self._client_dct)
-                self.data_frame.display_neighbor(self._client_dct[current_client_ID]["Neighbor_Tuple"],
-                                                 current_client_ID)
-                Type_Change[1] = False
+                self.switch_frame.change_type(
+                    Type_Change[0],
+                    self._client_dct
+                )
 
-        self.after(100, self.client_frames_handler)
+        elif current_client_ID in self._client_dct:
+            if current_client_ID in self._client_updated:
+                # Updating the client neighbor information and the XYZ
+                if self._client_updated[current_client_ID]["updated"]:
+                    self.data_frame.display_neighbor(
+                        self._client_dct[current_client_ID]["Neighbor_Tuple"],
+                        current_client_ID
+                    )
+                    self.data_frame.display_XYZ(
+                        self._client_dct[current_client_ID]["XYZ_Tuple"],
+                        current_client_ID
+                    )
+                    self._client_updated[current_client_ID]["updated"] = False
+
+                # Update the type
+                if Type_Change[1]:
+                    self.switch_frame.change_type(
+                        Type_Change[0],
+                        self._client_dct
+                    )
+                    self.data_frame.display_neighbor(
+                        self._client_dct[current_client_ID]["Neighbor_Tuple"],
+                        current_client_ID
+                    )
+                    Type_Change[1] = False
+        else:
+            self.switch_frame.set_current_client("SERVER")
+
+        self.after(250, self.client_frames_handler)
 
     # Simple print function
     def print_client_dct(self, client_id):
@@ -833,22 +977,32 @@ class PubSubGUI(ctk.CTk):
                 currentID = bat_pack["ID"]
 
                 if first_connection:
-                    # If it's the first connection, we add the client as a button
-                    self.switch_frame.add_client_button(bat_pack)
+                    print(f"[{currentID}] has connected")
                     bat_mac = bat_pack["MAC"]
-                    MAC_2_IP_ID[bat_mac] = {
+
+                    background_color = ""
+
+                    if len(color_list):
+                        background_color = color_list[0]
+                        color_list.pop(0)
+                    else:
+                        background_color = "gray30"
+
+                    MAC_2_IP_ID_CLR[bat_mac] = {
                         "IP": bat_pack["IP"],
-                        "ID": currentID
+                        "ID": currentID,
+                        "Color": background_color
                     }
+                    self.switch_frame.add_client_button(bat_pack)
                     first_connection = False
                 else:
+                    print(f"[{currentID}] is sending information")
                     # If it isn't, client dictionary is updated
                     self.update_client_dct(copy.copy(bat_pack))
                     time.sleep(0.001)
                     self._client_updated[currentID] = {
                         "updated": True
                     }
-                #self.print_client_dct(bat_pack["ID"])
 
                 # Request handling, checking our current dictionary if we need to ask
                 # the client to send neighbor or XYZ data
@@ -867,19 +1021,21 @@ class PubSubGUI(ctk.CTk):
                 client_obj.sendall(json_data.encode('utf-8'))
 
                 time.sleep(2)
+
         except Exception as e:
             print(f"Lost connection at {addr}: {e}")
 
         try:
             self.switch_frame.del_client_button(bat_pack)
+
         except Exception as e:
             print(f"Error deleting btn, client [{addr}]")
 
         if currentID in self._client_dct:
             del self._client_dct[currentID]
 
-        if bat_mac in MAC_2_IP_ID:
-            del MAC_2_IP_ID[bat_mac]
+        if bat_mac in MAC_2_IP_ID_CLR:
+            del MAC_2_IP_ID_CLR[bat_mac]
 
         client_obj.close()
 
