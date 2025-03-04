@@ -497,18 +497,11 @@ class DataFrame(ctk.CTkFrame):
         color_list_nh = []
         for m in mac:
             if isinstance(m, list):
-                print(f"array: {m}")
-                # If the next hop is the neighbor for some reason
-                if m[1] == server_MAC:
-                    next_hop_list.append("Server")
-                    color_list_nh.append("dark goldenrod")
-                # Else add to the list
-                else:
-                    if m[1] in MAC_2_IP_ID:
-                        next_hop_list.append(
-                            self.append_on_type(Type_Change[0], m[1])
-                        )
-                        color_list_nh.append("gray30")
+                if m[1] in MAC_2_IP_ID:
+                    next_hop_list.append(
+                        self.append_on_type(Type_Change[0], m[1])
+                    )
+                    color_list_nh.append("gray30")
 
                 if m[0] in MAC_2_IP_ID:
                     origin_list.append(
