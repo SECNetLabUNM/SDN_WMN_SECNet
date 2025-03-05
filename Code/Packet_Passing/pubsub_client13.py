@@ -5,23 +5,10 @@ import time
 import subprocess
 import requests
 
-def get_local_ip():
-    try:
-        # Create a temporary socket to an external address (e.g., Google's public DNS server)
-        # This doesn't establish a connection, so the target address can be almost anything
-        s = sck.socket(sck.AF_INET, sck.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))  # Google DNS server IP and port
-        local_ip = s.getsockname()[0]  # Get the socket's own address
-        s.close()
-    except Exception as e:
-        print(f"Error: {e}")
-        local_ip = "Unable to determine local IP"
-    return local_ip
-
 server_ADDR = "100.100.1.5"
 server_PORT = 9559
 # IMPORTANT: set the NIC that B.A.T.M.A.N is using here
-nic_name = "wlan0"
+nic_name = "wlp2s0"
 
 def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
@@ -33,7 +20,8 @@ class ClientHandler:
         self._mac = self.retrieve_client_MAC()
         self._ip = self.retrieve_client_IP()
         self.device_id = self.retrieve_client_ID()
-        # This is the main dictionary packet
+
+       # This is the main dictionary packet
         self.device_info = {
             "ID": self.device_id,
             "MAC": self._mac,
@@ -200,8 +188,8 @@ class ClientHandler:
 
     def connection(self):
         first_connection = True
-        client_socket = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
         while True:
+            client_socket = sck.socket(sck.AF_INET, sck.SOCK_STREAM)
             try:
                 client_socket.connect((self._ADDR, self._Port))
                 while True:
