@@ -494,7 +494,7 @@ class DataFrame(ctk.CTkFrame):
 
         for index, m in enumerate(mac):
             if isinstance(m, list):
-                if m[0] in MAC_2_IP_ID_CLR:
+                if m[0] in MAC_2_IP_ID_CLR and m[1] in MAC_2_IP_ID_CLR:
                     # Origin list handling
                     origin_list.append(
                         self.append_on_type(Type_Change[0], m[0])
@@ -504,13 +504,12 @@ class DataFrame(ctk.CTkFrame):
                     )
 
                     # Next hop list handling
-                    if m[1] in MAC_2_IP_ID_CLR:
-                        next_hop_list.append(
-                            self.append_on_type(Type_Change[0], m[1])
-                        )
-                        color_list_nh.append(
-                            MAC_2_IP_ID_CLR[m[1]]["Color"]
-                        )
+                    next_hop_list.append(
+                        self.append_on_type(Type_Change[0], m[1])
+                    )
+                    color_list_nh.append(
+                        MAC_2_IP_ID_CLR[m[1]]["Color"]
+                    )
 
                     # Link quality list handling
                     link_quality_list.append(temp_lq[index])
@@ -758,6 +757,7 @@ class PubSubGUI(ctk.CTk):
             "ID": "SERVER",
             "Color": "dark goldenrod"
         }
+
         self._ADDR = addr
         self._Port = port
         # This variable is for delay for if the current client is the server
