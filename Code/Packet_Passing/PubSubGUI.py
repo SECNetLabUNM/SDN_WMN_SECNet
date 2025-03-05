@@ -12,19 +12,6 @@ Code sections are labeled in parts. Please start at
 Part I and then make your way to Part III.
 '''
 
-# This just gets the local IP for your server so you don't
-# have to manually input it during test scenarios
-def get_local_ip():
-    try:
-        s = sck.socket(sck.AF_INET, sck.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        local_ip = s.getsockname()[0]
-        s.close()
-    except Exception as e:
-        print(f"Error: {e}")
-        local_ip = "Unable to determine local IP"
-    return local_ip
-
 def retrieve_client_MAC():
     try:
         output = subprocess.run(["ifconfig", nic_name],
@@ -49,7 +36,7 @@ def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
 
 
-server_ADDR = get_local_ip()
+server_ADDR = "100.100.1.5"
 nic_name = "wlp2s0"
 server_PORT = 9559
 server_MAC = retrieve_client_MAC()
@@ -773,6 +760,8 @@ class PubSubGUI(ctk.CTk):
         }
         self._ADDR = addr
         self._Port = port
+        # This variable is for delay for if the current client is the server
+        self._iterations = 1
 
         self.title("Publish Subscribe WMN GUI")
         self.geometry("1100x600")
@@ -781,7 +770,6 @@ class PubSubGUI(ctk.CTk):
         self.grid_rowconfigure(0, weight=1)
 
         self._client_dct = {}
-
         self._client_updated = {}
 
         # object for part III
@@ -855,27 +843,19 @@ class PubSubGUI(ctk.CTk):
                                 neigh_mac.append([current_location, next_hop])
 
                             neigh_LQ.append(link_quality)
-            device_neighbors = {
-                "nMAC": neigh_mac,
-                "LQ": neigh_LQ
-            }
 
-            return device_neighbors
+            return neigh_mac, neigh_LQ
 
         except Exception as e:
             print(f"Error trying to get BAT info: {e}")
             return None
 
-    def request_temp_neighbors(self):
-        Mac = ["66:16:U8:A5:02:00", ["04:56:78:AA:22:82", "66:16:U8:A5:02:00"]]
-        LQ = [gen_random_number(1, 999), gen_random_number(1, 999)]
-        return Mac, LQ
-
     def client_frames_handler(self):
         current_client_ID = self.switch_frame.return_current_ID()
-        if current_client_ID == "SERVER":
+        if current_client_ID == "SERVER" and self._iterations >= 4:
+            self._iterations = 0
             if self._client_dct[current_client_ID]["Neighbor_Tuple"][0]:
-                local_mac, local_lq = self.request_temp_neighbors()
+                local_mac, local_lq = self.request_server_neighbors()
                 device_neighbors = {
                     "nMAC": local_mac,
                     "LQ": local_lq
@@ -947,6 +927,7 @@ class PubSubGUI(ctk.CTk):
         else:
             self.switch_frame.set_current_client("SERVER")
 
+        self._iterations = self._iterations + 1
         self.after(250, self.client_frames_handler)
 
     # Simple print function
