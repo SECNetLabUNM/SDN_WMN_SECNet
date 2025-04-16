@@ -11,7 +11,9 @@ This project uses Better Approach to Mobile Ad-hoc Networking (BATMAN) for the W
 
 Because this project is meant to be implemented onto a drone network in the future, hardware switches are not an option. Virtualization of OpenFlow will be mandatory for this project.
 ### Hardware Used
-We used Raspberry Pi 4's running 
+We used Raspberry Pi 4's running Raspberry Pi OS (64-bit) on all Pi devices. These will act as our SDN enabled host devices and will be running OpenvSwitch. 
+
+We used the Dell XPS 15
 
 ### Recreating This Project
 
