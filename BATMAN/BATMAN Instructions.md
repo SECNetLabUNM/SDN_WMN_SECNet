@@ -39,5 +39,5 @@ sudo ip link set dev bat0 up
 
 ### Fill In the Details
 - \$NIC\$ -  The name of your wireless interface the host is using
-- \$IP_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
+- \$IP\_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
 - 
