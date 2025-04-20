@@ -1,1 +1,0 @@
-The idea with this directory is that the git repo can be cloned to each device, the config file set, and then the scripts will work.
