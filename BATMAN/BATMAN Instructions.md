@@ -36,3 +36,8 @@ sleep 1s
 sudo ip addr add dev bat0 $IP_ADDRESS$
 sudo ip link set dev bat0 up
 </pre>
+
+### Fill In the Details
+- \$NIC\$ -  The name of your wireless interface the host is using
+- \$IP_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
+- 
