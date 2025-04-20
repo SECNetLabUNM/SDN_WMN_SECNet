@@ -200,8 +200,10 @@
   },
   "active": "beba3a2706dd3b78",
   "lastOpenFiles": [
-    "README.md",
+    "Documentation/BATMAN_Documentation.md",
+    "Code/BATMAN/Instructions.md",
     "BATMAN/BATMAN Instructions.md",
+    "README.md",
     "Scripts/README.md",
     "Pub Sub GUI",
     "OpenFlow",
@@ -209,8 +211,6 @@
     "images.md",
     "images/Test_Bed_Layout_2.png",
     "images/vxlan_encap.png",
-    "Images",
-    "Documentation/BATMAN_Documentation.md",
-    "Code/BATMAN/Instructions.md"
+    "Images"
   ]
 }
