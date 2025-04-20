@@ -6,11 +6,11 @@ The project is built as a individual WMN enabled hosts communicating with each o
 
 This repository is tied to a thesis paper that will have a much more thorough explanation of how every piece works together, what software and hardware were chosen and the justifications why. 
 
-## Software Used
+## Software Choice
 This project uses Better Approach to Mobile Ad-hoc Networking (BATMAN) for the WMN, OpenFlow for SDN, and OpenVSwitch as the virtual SDN enabled switch. 
 
 Because this project is meant to be implemented onto a drone network in the future, hardware switches are not an option. Virtualization of OpenFlow will be mandatory for this project.
-## Hardware Used
+## Hardware Choice
 We used Raspberry Pi 4's running Raspberry Pi OS (64-bit) on all Pi devices. These will act as our SDN enabled host devices and will be running OpenvSwitch. 
 
 We used the Dell XPS 15 9560. This laptop will be hosting the SDN controller, the SDN GUI, and the pub/sub GUI all at the same time. It has a 4 core CPU that is more than capable of hosting all 3 software. It is running Ubuntu 20.04.6 LTS.
@@ -30,6 +30,6 @@ As for the physical test bench setup, provided below is the layout.
 
 ![Diagram](images/Test_Bed_Layout_2.png)
 
-To encourage multi-hop communication, we forced our controller into a dead zone where Raspberry Pi 1 cannot directly communicate with the server. 
+To encourage multi-hop communication, we forced our controller into a dead zone where Raspberry Pi 1 cannot directly communicate with it. Raspberry Pi 1 must talk through Raspberry Pi 2 in order to communicate with the controller. Note, because BATMAN is doing routing, you must force the BATMAN nodes to communicate via multi-hop first.
 
 
