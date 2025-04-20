@@ -28,6 +28,8 @@ All folders will contain the instructions and details about what commands are us
 
 As for the physical test bench setup, provided below is the layout.
 
+![Diagram](images/Test_Bed_Layout_2.png)
 
+To encourage multi-hop communication, we forced our controller into a dead zone where Raspberry Pi 1 cannot directly communica
 
 
