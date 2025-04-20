@@ -20,6 +20,12 @@ These devices were chosen because they can the following: Python 3.8, a version 
 ### Recreating This Project
 To recreate this project, we recommend starting from these folders:
 
+1. BATMAN
+2. OpenFlow
+3. Pub/Sub GUI
+
+All folders will contain the instructions and details about what commands are used and a script
+
 
 
 
