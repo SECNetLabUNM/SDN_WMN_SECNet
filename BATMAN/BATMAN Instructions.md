@@ -8,11 +8,13 @@ The official BATMAN documentation can be referenced here:
 On a terminal, run:
 <pre> sudo apt install batctl bridge-utils </pre>
 To confirm it is installed correctly, run:
-<pre> sudo modprobe batman-adv` </pre>
+<pre> sudo modprobe batman-adv </pre>
 ## Setup Script
 After downloading BATMAN. Use this script courtesy of this Reddit article:
 
 [https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892](https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892)
+
+You MUST be disconnected from the Wi-Fi and have your NIC disabled before using this script. It is recommended to disable your NIC then restart your device, then run this script. This script will run on all devices.
 
 <pre>
 # 0. Checks for BATMAN availability
@@ -45,3 +47,4 @@ sudo ip link set dev bat0 up
 - \$NIC\$ -  The name of your wireless interface the host is using
 - \$IP\_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
 - To change between routing algorithms, use either BATMAN_IV or BATMAN_V
+### After Script
