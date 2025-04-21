@@ -92,24 +92,18 @@ sudo ovs-vsctl del-br br_$NUM$
 sudo ovs-vsctl add-br br_$NUM$
 
 # 2. VXLAN to Neighbors
-sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$ \
--- set interface $PORT_NAME$ type=VXLAN \
-options:remote_ip=$NEIGHBOR_IP$ \
-ofport_request=$PORT_NUM$
+sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$ -- set interface $PORT_NAME$ type=VXLAN options:remote_ip=$NEIGHBOR_IP$ ofport_request=$PORT_NUM$
 
 # 3. Controller Connection
-sudo ovs-vsctl set-controller br_$NUM$ \
-tcp:$CTRL_IP$:6653
+sudo ovs-vsctl set-controller br_$NUM$ tcp:$CTRL_IP$:6653
 
-sudo ovs-vsctl set-controller br_$NUM$ \
-connection-mode=in-band
+sudo ovs-vsctl set-controller br_$NUM$ connection-mode=in-band
 
 # 4. OpenFlow Version
 sudo ovs-vsctl set bridge br_$NUM$ protocols=OpenFlow13
 
 # 5. Internal port
-sudo ovs-vsctl add-port br_$NUM$ probe -- set interface \
-probe type=internal ofport_request=$PORT_INT$
+sudo ovs-vsctl add-port br_$NUM$ probe -- set interface probe type=internal ofport_request=$PORT_INT$
 sudo ip addr add $PROBE_IP$/24 dev probe
 sudo ifconfig probe $PROBE_IP$/24 mtu 1400 up
 
@@ -121,4 +115,7 @@ sudo ovs-vsctl show
 2. This section is for creating a port and connection to another switch. Note this is for switch to switch connection only. `$PORT_NAME` is the name of the port. `$NEIGHBOR_IP` is the IP that you want this switch to connect to. Note this is NOT the same as the BATMAN IP.  You will use an entirely different IP for the virtual switches. `$PORT_NUM$` is the number for this port. It is recommended to choose one as it is easier to keep up on what switch to connected to where.
 3. This section is to create a link to the controller. `$CTRL_IP$` is the IP of the controller.
 4. This section is to make sure the OvS is using OpenFlow 1.3
-5. This section is to create the pseudo virtual machine in the form of an internal port. This port is a dummy and does nothing except act as a pseudo host device connected to the switch. 
+5. This section is to create the pseudo virtual machine in the form of an internal port. This port is a dummy and does nothing except act as a pseudo host device connected to the switch. `$PORT_INT$` will be your internal port number. We recommend something like 1 to keep it simple. `$PROBE_IP$` will be the IP of these dummy probes. These IPs will also be the IP you will be using to connect the virtual switches in section 2. We recommend making these IPs very different from the BATMAN ones.
+6. Confirmation to show that all commands are working. OpenvSwitch will print out the switch and its settings.
+
+If there are any errors, we recommen
