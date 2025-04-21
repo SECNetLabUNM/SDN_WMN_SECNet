@@ -15,11 +15,12 @@ After downloading BATMAN. Use this script courtesy of this Reddit article:
 [https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892](https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892)
 
 <pre>
-# 
+# 0. Checks for BATMAN availability
 sudo modprobe batman-adv
 
 sudo rfkill unblock 1
 
+# 1. Setting up the network NIC
 sudo ip link set $NIC$ down
 sudo iwconfig $NIC$ mode ad-hoc
 sudo iwconfig $NIC$ essid my-mesh-network
@@ -29,10 +30,12 @@ sudo iwconfig $NIC$ channel 8
 sleep 1s
 sudo ip link set $NIC$ up
 
+# 2. Setting up BATMAN
 sleep 1s
 sudo batctl routing_algo BATMAN_IV
 sudo batctl if add $NIC$
 
+# 3. Create IP address and turn BATMAN on
 sleep 1s
 sudo ip addr add dev bat0 $IP_ADDRESS$
 sudo ip link set dev bat0 up
