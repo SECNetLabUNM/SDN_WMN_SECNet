@@ -64,7 +64,7 @@ Check if the IP address is correctly set. Use the command `ifconfig` to check ba
 You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig`. 
 <pre>
 wlp2s0     IEEE 802.11  ESSID:"my-mesh-network"  
-          Mode:Ad-Hoc  Frequency:2.447 GHz  Cell: 16:A6:A5:34:53:46
+           Mode:Ad-Hoc  Frequency:2.447 GHz  Cell: 1A:23:G5:01:B9:5F
 </pre>
 
 Check the Cell address and confirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices. 
@@ -72,9 +72,9 @@ Check the Cell address and confirm that it is the same for every device. If not,
 Finally, use the command `sudo batctl o` to check the neighbors. It will look like this:
 
 <pre>
-[B.A.T.M.A.N. adv 2021.3, MainIF/MAC: wlp2s00/9c:b6:d0:df:13:8d (bat0/2e:91:15:b1:de:46 BATMAN_IV)]
+[B.A.T.M.A.N. adv 2021.3, MainIF/MAC: wlp2s0/9c:b6:d0:df:13:8d (bat0/2e:91:15:b1:de:46 BATMAN_IV)]
    Originator        last-seen (#/255) Nexthop           [outgoingIF]
- * e4:5f:01:8c:1c:b2    0.380s   (176) e4:5f:01:8c:1c:b2 [     wlan0]
+ * e4:5f:01:8c:1c:b2    0.380s   (176) e4:5f:01:8c:1c:b2 [    wlp2s0]
 </pre>
 
 If this host is the only device within the network, the list will be empty. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop. After setup, repeatedly use `sudo batctl o` to check for all connected hosts. 
