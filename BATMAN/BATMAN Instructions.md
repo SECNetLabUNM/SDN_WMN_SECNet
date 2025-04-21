@@ -24,8 +24,7 @@ After downloading BATMAN. Use this script and instructions courtesy of this Redd
 We really recommend reading this article for extra details in case something goes wrong following this setup.
 
 You MUST be disconnected from the Wi-Fi and have your NIC disabled before using this script. It is recommended to disable your NIC then restart your device, then run this script. This script will run on all devices.
-
-<pre>
+```
 # 0. Checks for BATMAN availability
 sudo modprobe batman-adv
 
@@ -50,7 +49,7 @@ sudo batctl if add $NIC$
 sleep 1s
 sudo ip addr add dev bat0 $IP_ADDRESS$
 sudo ip link set dev bat0 up
-</pre>
+```
 If there is an error message. Restart the device and then run the script line by line to figure out which part is giving the error. Run this script on all devices.
 ### Fill In the Details
 - `$NIC$` -  The name of your wireless interface the host is using

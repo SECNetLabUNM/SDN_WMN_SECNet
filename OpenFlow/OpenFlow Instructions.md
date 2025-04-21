@@ -3,7 +3,7 @@ We ran the RYU SDN controller on our most powerful device with the best NIC avai
 
 To run the controller, the minimum requirement we have found is `python 3.8` and `pip 20.0.2`. These are the python and pip3 versions we are using. Please create an environment that can run this python version. Below is our dependencies that are required for both the RYU controller.
 
-<pre>
+```
 setuptools==44.0.0
 eventlet==0.30.2
 certifi==2023.7.22
@@ -33,7 +33,7 @@ tinyrpc==1.0.4
 urllib3==2.0.6
 WebOb==1.8.7
 wrapt==1.15.0
-</pre>
+```
 With these dependencies installed, the RYU controller can be installed by running:
 
 `pip install ryu`
@@ -86,7 +86,7 @@ sudo ovs-vsctl show
 This command shows all the active switches known as bridges. Since it is a fresh install, there will be no bridge here.
 
 ### OvS Script
-<pre>
+```
 # 1. Create bridge / switch name
 sudo ovs-vsctl del-br br_$NUM$
 sudo ovs-vsctl add-br br_$NUM$
@@ -115,10 +115,10 @@ sudo ifconfig probe $PROBE_IP$/24 mtu 1400 up
 
 # 6. Confirm
 sudo ovs-vsctl show
-</pre>
+```
 
 1. This section creates the switch. We recommend to name your bridge br_0 or any other number tat you would like if you are running multiple switches. `del-br` is to delete any possible switch with the same name and `add-br` adds a switch.
 2. This section is for creating a port and connection to another switch. Note this is for switch to switch connection only. `$PORT_NAME` is the name of the port. `$NEIGHBOR_IP` is the IP that you want this switch to connect to. Note this is NOT the same as the BATMAN IP.  You will use an entirely different IP for the virtual switches. `$PORT_NUM$` is the number for this port. It is recommended to choose one as it is easier to keep up on what switch to connected to where.
 3. This section is to create a link to the controller. `$CTRL_IP$` is the IP of the controller.
 4. This section is to make sure the OvS is using OpenFlow 1.3
-5. This section is to create the pseudo virtual machine in the form of a 
+5. This section is to create the pseudo virtual machine in the form of an internal port. This port is a dummy and does nothing except act as a pseudo host device connected to the switch. 
