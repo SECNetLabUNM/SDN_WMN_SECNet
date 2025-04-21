@@ -59,6 +59,8 @@ To confirm that the script is working properly. Let's check the following.
 
 Check if the IP address is correctly set. Use the command `ifconfig` to check bat0 for the correct IP and the NIC to make sure that is has `UP BROADCAST MULTICAST`. 
 
-You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig` then check the `ESSID`. It should say `ESSID:"my-mesh-network"`. Next check the cell. Confirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices.
+You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig` which should look like this:
 
-Finally, 
+Check the cell and onfirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices. 
+
+Finally, use the command `sudo batctl o` to check all ne
