@@ -65,5 +65,10 @@ Check the cell and onfirm that it is the same for every device. If not, use the 
 
 Finally, use the command `sudo batctl o` to check the neighbors. It will look like this:
 
-<
-If there is only 1 device within the network, it will be empty like this. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop.
+<pre>
+[B.A.T.M.A.N. adv 2021.3, MainIF/MAC: wlp2s00/9c:b6:d0:df:13:8d (bat0/2e:91:15:b1:de:46 BATMAN_IV)]
+   Originator        last-seen (#/255) Nexthop           [outgoingIF]
+ * e4:5f:01:8c:1c:b2    0.380s   (176) e4:5f:01:8c:1c:b2 [     wlan0]
+</pre>
+
+If this host is the only device within the network, the list will be empty. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop.
