@@ -49,3 +49,5 @@ If there is an error message. Restart the device and then run the script line by
 - To change between routing algorithms, use either `BATMAN_IV` or `BATMAN_V` on the `routing_algo` line. 
 ### After Script
 To confirm that the script is working properly. Let's check the following.
+
+Check if the IP address is correctly set. Use the command `ifconfig` to check bat0 for the correct IP and the NIC to make sure that is has `UP BROADCAST MULTICAST`. 
