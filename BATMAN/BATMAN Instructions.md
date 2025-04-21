@@ -63,4 +63,6 @@ You have to make sure that all devices are using the same `Cell` address for the
 
 Check the cell and onfirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices. 
 
-Finally, use the command `sudo batctl o` to check all ne
+Finally, use the command `sudo batctl o` to check the neighbors. It will look like this:
+
+If there is only 1 device within the network, it will be empty here
