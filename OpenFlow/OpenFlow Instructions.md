@@ -42,6 +42,13 @@ Alternatively, you can download RYU from the GitHub located here:
 
 Switch to this directory where you can either try the `setup.py` file or try `cd ryu; pip install .`. Note RYU is discontinued and the installation process can be frustrating. If there are any weird errors, the issues section of the RYU GitHub might provide some answers.
 
-To confirm that RYU is working, move to the `/ryu/app` section and run `ryu-manager simple_switch_13.py`. If there are no error messages, the controller is working. 
+To confirm that RYU is working, move to the `/ryu/app` section and run `ryu-manager simple_switch_13.py`. If there are no error messages, the controller is working. This will run a controller that is OpenFlow 1.3 enabled. Note, you can run multiple programs at once with different flags that you will see later on.
+
+### OpenFlow Upgraded GUI
+Provided is a GitHub to an upgraded GUI that runs with the RYU controller. We recommend using this GUI as we use it within our implementation.
+
+[https://github.com/martimy/flowmanager](https://github.com/martimy/flowmanager)
+
+This GUI requires `eventlet==0.30.2` and RYU to be installed and running. To run this GUI, 
 
 ## Switch Installation
