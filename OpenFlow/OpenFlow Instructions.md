@@ -73,7 +73,7 @@ ryu-manager ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ryu-manager --observe-links ~/flowmanager/flowmanager.py ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ```
 ## OpenvSwitch Installation
-To install OpenvSwitch, use the following command:
+We ran our OpenvSwitches on our Raspberry Pis. To install OpenvSwitch, use the following command:
 ```
 sudo apt install openvswitch-switch
 ```
@@ -116,3 +116,6 @@ sudo ifconfig probe $PROBE_IP$/24 mtu 1400 up
 # 6. Confirm
 sudo ovs-vsctl show
 </pre>
+
+1. This section creates the switch. We recommend to name your bridge br_0 or any other number tat you would like if you are running multiple switches. `del-br` is to delete any possible switch with the same name and `add-br` adds a switch.
+2. 
