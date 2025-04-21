@@ -118,4 +118,4 @@ sudo ovs-vsctl show
 5. This section is to create the pseudo virtual machine in the form of an internal port. This port is a dummy and does nothing except act as a pseudo host device connected to the switch. `$PORT_INT$` will be your internal port number. We recommend something like 1 to keep it simple. `$PROBE_IP$` will be the IP of these dummy probes. These IPs will also be the IP you will be using to connect the virtual switches in section 2. We recommend making these IPs very different from the BATMAN ones.
 6. Confirmation to show that all commands are working. OpenvSwitch will print out the switch and its settings.
 
-If there are any errors, we recommen
+If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
