@@ -99,7 +99,7 @@ ofport_request=$PORT_NUM$
 
 # 3. Controller Connection
 sudo ovs-vsctl set-controller br_$NUM$ \
-tcp:$CTRL_IP$
+tcp:$CTRL_IP$:6653
 
 sudo ovs-vsctl set-controller br_$NUM$ \
 connection-mode=in-band
@@ -119,4 +119,6 @@ sudo ovs-vsctl show
 
 1. This section creates the switch. We recommend to name your bridge br_0 or any other number tat you would like if you are running multiple switches. `del-br` is to delete any possible switch with the same name and `add-br` adds a switch.
 2. This section is for creating a port and connection to another switch. Note this is for switch to switch connection only. `$PORT_NAME` is the name of the port. `$NEIGHBOR_IP` is the IP that you want this switch to connect to. Note this is NOT the same as the BATMAN IP.  You will use an entirely different IP for the virtual switches. `$PORT_NUM$` is the number for this port. It is recommended to choose one as it is easier to keep up on what switch to connected to where.
-3. This section is to create
+3. This section is to create a link to the controller. `$CTRL_IP$` is the IP of the controller.
+4. This section is to make sure the OvS is using OpenFlow 1.3
+5. This section is to create the pseudo virtual machine in the form of a 
