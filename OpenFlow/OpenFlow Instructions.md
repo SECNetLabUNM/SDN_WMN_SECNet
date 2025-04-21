@@ -1,4 +1,6 @@
 ## Controller Installation
+We ran the RYU SDN controller on our most powerful device with the best NIC available. We recommend you do the same.
+
 To run the controller, the minimum requirement we have found is `python 3.8` and `pip 20.0.2`. These are the python and pip3 versions we are using. Please create an environment that can run this python version. Below is our dependencies that are required for both the RYU controller.
 
 <pre>
@@ -70,4 +72,4 @@ ryu-manager ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ```
 ryu-manager --observe-links ~/flowmanager/flowmanager.py ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ```
-## Switch Installation
+## OpenvSwitch Installation
