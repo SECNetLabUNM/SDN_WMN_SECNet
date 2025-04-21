@@ -37,5 +37,11 @@ With these dependencies installed, the RYU controller can be installed by runnin
 `pip install ryu`
 
 Alternatively, you can download RYU from the GitHub located here:
-[]()
+
+[https://github.com/faucetsdn/ryu](https://github.com/faucetsdn/ryu)
+
+Switch to this directory where you can either try the `setup.py` file or try `cd ryu; pip install .`. Note RYU is discontinued and the installation process can be frustrating. If there are any weird errors, the issues section of the RYU GitHub might provide some answers.
+
+To confirm that RYU is working, move to the `/ryu/app` section and run `ryu-manager simple_switch_13.py`. If there are no error messages, the controller is working. 
+
 ## Switch Installation
