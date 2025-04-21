@@ -1,5 +1,5 @@
 ## Controller Installation
-To run the controller, the minimum require that we have found is python 3.8. Please create an environment that can run this python version. Below is our dependencies that are required for both the RYU controller.
+To run the controller, the minimum requirement we have found is `python 3.8` and `pip 20.0.2`. These are the python and pip3 versions we are using. Please create an environment that can run this python version. Below is our dependencies that are required for both the RYU controller.
 
 <pre>
 setuptools==44.0.0
@@ -34,5 +34,8 @@ wrapt==1.15.0
 </pre>
 With these dependencies installed, the RYU controller can be installed by running:
 
-``
+`pip install ryu`
+
+Alternatively, you can download RYU from the GitHub located here:
+[]()
 ## Switch Installation
