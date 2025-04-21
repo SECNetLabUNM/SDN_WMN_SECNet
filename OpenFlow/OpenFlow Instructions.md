@@ -49,9 +49,15 @@ Provided is a GitHub to an upgraded GUI that runs with the RYU controller. We re
 
 [https://github.com/martimy/flowmanager](https://github.com/martimy/flowmanager)
 
-This GUI requires `eventlet==0.30.2` and RYU to be installed and running. To run this GUI, run this command 
+This GUI requires `eventlet==0.30.2` and RYU to be installed and running. To run this GUI, run this command.
 
 ```
-ryu-manager --observe-links ~/flowmanager/flowmanager.py ryu.app.simple_switch_13
+ryu-manager --observe-links ~/flowmanager/flowmanager.py ~ryu/ryu/app/simple_switch_13
 ```
+
+We have only tested this GUI with OpenFlow 1.3. Anomalies might occur with other OpenFlow versions. 
+
+The GUI is web based and can be located through this link: [http://localhost:8080/home/index.html](http://localhost:8080/home/index.html)
+### Enable Rest API
+We highly recommend enabling the Rest API 
 ## Switch Installation
