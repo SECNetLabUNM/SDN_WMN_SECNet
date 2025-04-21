@@ -15,6 +15,7 @@ After downloading BATMAN. Use this script courtesy of this Reddit article:
 [https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892](https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892)
 
 <pre>
+# 
 sudo modprobe batman-adv
 
 sudo rfkill unblock 1
@@ -40,4 +41,4 @@ sudo ip link set dev bat0 up
 ### Fill In the Details
 - \$NIC\$ -  The name of your wireless interface the host is using
 - \$IP\_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
-- 
+- To change between routing algorithms, use either BATMAN_IV or BATMAN_V
