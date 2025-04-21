@@ -17,11 +17,12 @@ sudo modprobe batman-adv
 sudo batctl -v 
 </pre>
 ## Setup Script
-After downloading BATMAN. Use this script courtesy of this Reddit article:
+After downloading BATMAN. Use this script and instructions courtesy of this Reddit article:
 
 [https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892](https://www.reddit.com/r/darknetplan/comments/68s6jp/how_to_configure_batmanadv_on_the_raspberry_pi_3/?rdt=44892)
 
-We really recommend reading this article for 
+We really recommend reading this article for extra details in case something goes wrong following this setup.
+
 You MUST be disconnected from the Wi-Fi and have your NIC disabled before using this script. It is recommended to disable your NIC then restart your device, then run this script. This script will run on all devices.
 
 <pre>
@@ -60,7 +61,13 @@ To confirm that the script is working properly. Let's check the following.
 
 Check if the IP address is correctly set. Use the command `ifconfig` to check bat0 for the correct IP and the NIC to make sure that is has `UP BROADCAST MULTICAST`. 
 
-You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig`. Check the cell and confirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices. 
+You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig`. 
+<pre>
+wlp2s0     IEEE 802.11  ESSID:"my-mesh-network"  
+          Mode:Ad-Hoc  Frequency:2.447 GHz  Cell: 16:A6:A5:34:53:46
+</pre>
+
+Check the Cell address and confirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices. 
 
 Finally, use the command `sudo batctl o` to check the neighbors. It will look like this:
 
@@ -70,5 +77,7 @@ Finally, use the command `sudo batctl o` to check the neighbors. It will look li
  * e4:5f:01:8c:1c:b2    0.380s   (176) e4:5f:01:8c:1c:b2 [     wlan0]
 </pre>
 
-If this host is the only device within the network, the list will be empty. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop.  
+If this host is the only device within the network, the list will be empty. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop. After setup, repeatedly use `sudo batctl o` to check for all connected hosts. 
+
+If after about a minute if nothing shows up, something went wrong and it is recommended to restart the device and restart the scripting process. 
 
