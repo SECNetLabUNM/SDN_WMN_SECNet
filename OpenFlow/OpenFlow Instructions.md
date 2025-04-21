@@ -73,3 +73,7 @@ ryu-manager ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ryu-manager --observe-links ~/flowmanager/flowmanager.py ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ```
 ## OpenvSwitch Installation
+To install OpenvSwitch, use the following command:
+```
+sudo apt install openvswitch-switch
+```
