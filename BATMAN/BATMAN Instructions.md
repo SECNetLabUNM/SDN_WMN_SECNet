@@ -42,7 +42,7 @@ sleep 1s
 sudo ip addr add dev bat0 $IP_ADDRESS$
 sudo ip link set dev bat0 up
 </pre>
-
+If there is an error message. Restart the device and then run the script line by line to figure out which part is giving the error.
 ### Fill In the Details
 - \$NIC\$ -  The name of your wireless interface the host is using
 - \$IP\_ADDRESS\$ - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
