@@ -54,9 +54,11 @@ If there is an error message. Restart the device and then run the script line by
 - `$NIC$` -  The name of your wireless interface the host is using
 - `$IP_ADDRESS$` - The IP address you will give for your BATMAN host. We recommend using something memorable over the usual 192.168.x.x.
 - To change between routing algorithms, use either `BATMAN_IV` or `BATMAN_V` on the `routing_algo` line. 
-### After Script
+### Script Confirmation & Testing
 To confirm that the script is working properly. Let's check the following.
 
 Check if the IP address is correctly set. Use the command `ifconfig` to check bat0 for the correct IP and the NIC to make sure that is has `UP BROADCAST MULTICAST`. 
 
-You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig`
+You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig` then check the `ESSID`. It should say `ESSID:"my-mesh-network"`. Next check the cell. Confirm that it is the same for every device. If not, use the command `sudo iwconfig $NIC$ ap $address$`. Make sure the address is the same for all devices.
+
+Finally, 
