@@ -6,9 +6,16 @@ The official BATMAN documentation can be referenced here:
 
 ## Installation of BATMAN
 On a terminal, run:
-<pre> sudo apt install batctl bridge-utils </pre>
+<pre>
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt install batctl bridge-utils 
+</pre>
 To confirm it is installed correctly, run:
-<pre> sudo modprobe batman-adv </pre>
+<pre> 
+sudo modprobe batman-adv 
+sudo batctl -v 
+</pre>
 ## Setup Script
 After downloading BATMAN. Use this script courtesy of this Reddit article:
 
@@ -51,3 +58,5 @@ If there is an error message. Restart the device and then run the script line by
 To confirm that the script is working properly. Let's check the following.
 
 Check if the IP address is correctly set. Use the command `ifconfig` to check bat0 for the correct IP and the NIC to make sure that is has `UP BROADCAST MULTICAST`. 
+
+You have to make sure that all devices are using the same `Cell` address for their NICs. To check, use the command `sudo iwconfig`
