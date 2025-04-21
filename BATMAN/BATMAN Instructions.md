@@ -65,4 +65,5 @@ Check the cell and onfirm that it is the same for every device. If not, use the 
 
 Finally, use the command `sudo batctl o` to check the neighbors. It will look like this:
 
-If there is only 1 device within the network, it will be empty here
+<
+If there is only 1 device within the network, it will be empty like this. Otherwise, the row with an asterisks will be the ideal path to the host. If the Nexthop is the same as the Orginator, it is 1 hop.
