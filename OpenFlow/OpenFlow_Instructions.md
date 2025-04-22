@@ -73,7 +73,10 @@ ryu-manager ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ryu-manager --observe-links ~/flowmanager/flowmanager.py ~/ryu/ryu/app/simple_switch_13 ~/ryu/ryu/app/ofctl_rest.py
 ```
 ## OpenvSwitch Installation
-The official documentation 
+The official OpenvSwitch can be found here:
+
+[https://docs.openvswitch.org/en/latest/](https://docs.openvswitch.org/en/latest/)
+
 We ran our OpenvSwitches on our Raspberry Pis. To install OpenvSwitch, use the following command:
 ```
 sudo apt install openvswitch-switch
@@ -122,4 +125,4 @@ sudo ovs-vsctl show
 If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
 
 ### OvS Commands
-The list of all OpenVSwitch commands, including ones to 
+There are two types of OpenvSwitch commands that we use. The most common one is the `ovs-vsctl` command that acts as a creation tool. A full list of all it
