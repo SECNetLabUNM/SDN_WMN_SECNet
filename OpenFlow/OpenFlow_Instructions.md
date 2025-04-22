@@ -125,4 +125,16 @@ sudo ovs-vsctl show
 If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
 
 ### OvS Commands
-There are two types of OpenvSwitch commands that we use. The most common one is the `ovs-vsctl` command that acts as a creation tool. A full list of all it
+#### ovs-vsctl
+There are two types of OpenvSwitch commands that we use. The most common one is the `ovs-vsctl` command that acts as a creation tool. A full list of all this command can do can be found here:
+
+[https://www.openvswitch.org/support/dist-docs/ovs-vsctl.8.txt](https://www.openvswitch.org/support/dist-docs/ovs-vsctl.8.txt)
+
+All sitch creation and modification commands that we use will be started with:
+```
+sudo ovs-vsctl 
+```
+
+
+#### ovs-ofctl
+
