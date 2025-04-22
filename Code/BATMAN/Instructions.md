@@ -1,1 +1,0 @@
-s portion is for the code of the B.A.T.M.A.N scripts. Your computer must be running B.A.T.M.A.N first.
