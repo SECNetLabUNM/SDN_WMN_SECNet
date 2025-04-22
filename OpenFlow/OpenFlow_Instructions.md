@@ -119,3 +119,5 @@ sudo ovs-vsctl show
 6. Confirmation to show that all commands are working. OpenvSwitch will print out the switch and its settings.
 
 If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
+
+### OvS Commands
