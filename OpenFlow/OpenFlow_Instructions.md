@@ -135,6 +135,15 @@ All sitch creation and modification commands that we use will be started with:
 sudo ovs-vsctl 
 ```
 
+To create a virtual switch, otherwise known as a bridge, the `add-br` command is needed followed by the name of the bridge, usually called `br_#`. Deletion of the bridge would be `del-br`, followed by the name of the bridge. Here is an example:
+```
+sudo ovs-vsctl add-br br_0
+sudo ovs-vsctl del-br br_0
+```
+
+With the creation of a virtual switch, you can now add virtual ports 
+
+
 
 #### ovs-ofctl
 
