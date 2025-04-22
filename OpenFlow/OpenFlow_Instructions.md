@@ -141,7 +141,16 @@ sudo ovs-vsctl add-br br_0
 sudo ovs-vsctl del-br br_0
 ```
 
-With the creation of a virtual switch, you can now add virtual ports 
+With the creation of a virtual switch, you can now add virtual ports. The command `add-port`, followed by the bridge name and the port name will be used:
+```
+sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$
+```
+Example:
+```
+sudo ovs-vsctl add-port br_0 out_port_12
+```
+
+Additionally, you can add 
 
 
 
