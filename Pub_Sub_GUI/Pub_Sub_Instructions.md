@@ -15,7 +15,7 @@ python3 PubSubClient13.py
 ```
 
 ### Request Data
-The client will provide the GUI with the following data from the device:
+The client will provide the GUI with the following data dictionary from the device:
 
 1. OpenFlow switch ID 
 2. Device MAC address
@@ -36,3 +36,5 @@ The client simply requests the TQ by using the `sudo batctl o` command and takin
 The XYZ tuple contains the following, a request boolean condition indicating the request status from the GUI, and the host location. Because this project will eventually be deployed on a network of drones, it is vital to have drone location data for each host. However since each hosts are Raspberry Pis, we must simulate their location by randomizing each euclidean coordinate from [0,999]. A XYZ tuple can look like this:
 
 `[True, {X, Y, Z}]`
+
+To help mitigate traffic, the data dictinairy will 
