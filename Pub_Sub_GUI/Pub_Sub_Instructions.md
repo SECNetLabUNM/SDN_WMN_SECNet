@@ -33,4 +33,6 @@ The client simply requests the TQ by using the `sudo batctl o` command and takin
 
 `[True, {Originator, LQ, Next Hop}]`
 
-The XYZ tuple contains the following, a request boolean condition indicating the request status from the GUI, and the host location. Because this project's end game is to be deployed on a network of drones, 
+The XYZ tuple contains the following, a request boolean condition indicating the request status from the GUI, and the host location. Because this project will eventually be deployed on a network of drones, it is vital to have drone location data for each host. However since each hosts are Raspberry Pis, we must simulate their location by randomizing each euclidean coordinate from [0,999]. A XYZ tuple can look like this:
+
+`[True, {X, Y, Z}]`
