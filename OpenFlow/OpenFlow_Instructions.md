@@ -145,10 +145,10 @@ With the creation of a virtual switch, you can now add virtual ports. The comman
 ```
 sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$
 ```
-Example:
-```
-sudo ovs-vsctl add-port br_0 out_port_12
-```
+However, we do not doing recommend creating the probes alone without any additional features as our OvS tried to look for a network device with the same name. We recommend fully completing your port with all of its features with the `set interface` command. 
+
+You first need to set a `type` for the port. This can be `internal`
+
 
 Additionally, you can add features to a port such as it's encapsulation type. we use `VXLAN`, its remote destination IP,  and a port number. We recommend using a port number to easily keep track of 
 
