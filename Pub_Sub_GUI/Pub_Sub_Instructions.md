@@ -37,4 +37,11 @@ The XYZ tuple contains the following, a request boolean condition indicating the
 
 `[True, {X, Y, Z}]`
 
-To help mitigate traffic, the data dictionary will be sent one way from the client to the GUI. The GUI will send a request tuple to the client indicating what tuple it wants to request from the individual client. This tuple will look like this, `[False, False]`. The first element is the neighbor tuple request status, and the second is the XYZ tuple request status. If either are true, the client will update the tuples from the data dictionary with the latest information. This tuple is the 
+To help mitigate traffic, the data dictionary will be sent one way from the client to the GUI. The GUI will send a request tuple to the client indicating what tuple it wants to request from the individual client. This tuple will look like this, `[False, False]`. The first element is the neighbor tuple request status, and the second is the XYZ tuple request status. If either are true, the client will update the tuples from the data dictionary with the latest information. This tuple is the GUI to client communication while the booleans in the neighbor and xyz tuples are more for the GUI back end itself.
+
+## PubSubGUI.py
+This GUI code is ran on only one device which we recommend to be the same as the one hosting the RYU controller. It is built using custom tkinter which should be in the requirements.txt in the OpenFlow folder but can be installed manually via this command:
+```
+pip install customtkinter
+```
+
