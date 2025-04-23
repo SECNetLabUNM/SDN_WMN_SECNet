@@ -147,11 +147,18 @@ sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$
 ```
 However, we do not doing recommend creating the probes alone without any additional features as our OvS tried to look for a network device with the same name. We recommend fully completing your port with all of its features with the `set interface` command. 
 
-You first need to set a `type` for the port. This can be `internal`
+You first need to set a `type` for the port. This can be `internal` which means a dummy port, or `VXLAN` which is the encapsulation protocol that will require a `remote_ip` or a destination. Type `internal` will not require a destination. Optionally, you can also add a port number to your port. We recommend doing this. 
+```
+sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$ -- set interface $PORT_NAME$ type=VXLAN options:remote_ip=$NEIGHBOR_IP$ ofport_request=$PORT_NUM$
+```
+```
 
-
-Additionally, you can add features to a port such as it's encapsulation type. we use `VXLAN`, its remote destination IP,  and a port number. We recommend using a port number to easily keep track of 
-
+sudo ovs-vsctl add-port br_$NUM$ probe -- set interface probe type=internal ofport_request=$PORT_INT$
+```
+Example:
+```
+sudo ovs-vsctl add-port br_1 port_12 -- set interface port_12 type=VXLAN options:remote_ip=192.168.1.1 ofport_request=10
+```
 
 
 #### ovs-ofctl
