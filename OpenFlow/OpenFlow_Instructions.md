@@ -150,7 +150,7 @@ Example:
 sudo ovs-vsctl add-port br_0 out_port_12
 ```
 
-Additionally, you can add 
+Additionally, you can add features to a port such as it's encapsulation type. we use `VXLAN`, its remote destination IP,  and a port number. We recommend using a port number to easily keep track of 
 
 
 
