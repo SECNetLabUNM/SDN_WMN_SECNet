@@ -125,7 +125,7 @@ sudo ovs-vsctl show
 If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
 
 ### OvS Commands
-#### ovs-vsctl
+### ovs-vsctl
 There are two types of OpenvSwitch commands that we use. The most common one is the `ovs-vsctl` command that acts as a creation tool. A full list of all this command can do can be found here:
 
 [https://www.openvswitch.org/support/dist-docs/ovs-vsctl.8.txt](https://www.openvswitch.org/support/dist-docs/ovs-vsctl.8.txt)
@@ -167,7 +167,7 @@ sudo ovs-vsctl add-port br_0 probe -- set interface probe type=internal ofport_r
 
 Note, for internal ports like this probe, you will need to give it an IP and enable it using your ifconfig. You need to make it available to the network. 
 
-#### ovs-ofctl
+### ovs-ofctl
 We use `ovs-ofctl` as a switch end command to manually input and retrieve flow entries. This command is very useful for experimentation on the switch end. The full list of this command can be found here:
 
 [https://www.openvswitch.org//support/dist-docs/ovs-ofctl.8.txt](https://www.openvswitch.org//support/dist-docs/ovs-ofctl.8.txt)
