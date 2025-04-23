@@ -25,4 +25,8 @@ The client will provide the GUI with the following data from the device:
 
 The first three should be self explanatory with the switch ID coming from the RYU server itself. 
 
-The neighbor tuple will be the Batman IV transmission quality, aka, the link quality between each BATMAN device. Since multi-hop routing is enabled, we can also request 
+The neighbor tuple will be the Batman IV transmission quality (TQ), aka, the link quality between each BATMAN device. Since multi-hop routing is enabled, we can also request the TQ between the host and its multi-hop neighbors. The TQ calculations are done by the Batman IV algorithm which is broken down here:
+
+[https://www.open-mesh.org/projects/batman-adv/wiki/BATMAN_IV](https://www.open-mesh.org/projects/batman-adv/wiki/BATMAN_IV)
+
+The client simply requests the TQ by using the `sudo batctl o` command and taking the 
