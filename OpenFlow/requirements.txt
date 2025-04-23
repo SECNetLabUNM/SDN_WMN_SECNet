@@ -2,6 +2,7 @@ setuptools==44.0.0
 eventlet==0.30.2
 certifi==2023.7.22
 charset-normalizer==3.3.0
+customtkinter==5.2.2
 debtcollector==2.5.0
 dnspython==1.16.0
 greenlet==3.0.0
