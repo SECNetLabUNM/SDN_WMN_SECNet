@@ -169,5 +169,16 @@ Note, for internal ports like this probe, you will need to give it an IP and ena
 #### ovs-ofctl
 We use `ovs-ofctl` as a switch end command to manually input and retrieve flow entries. This command is very useful for experimentation on the switch end. The full list of this command can be found here:
 
-[]()
+[https://www.openvswitch.org//support/dist-docs/ovs-ofctl.8.txt](https://www.openvswitch.org//support/dist-docs/ovs-ofctl.8.txt)
+
+To check a flow entry, use this command:
+```
+sudo ovs-ofctl -O OpenFlow$OF_Version$ dump-flows br_$NUM$
+```
+Example:
+```
+sudo ovs-ofctl -O OpenFlow13 dump-flows br_0
+```
+
+You must specify the OpenFlow version such as 13 for 1.3 with a `-O` flag preceding it. `dump-flows` is the command to dump data plane entries. 
 
