@@ -151,8 +151,8 @@ You first need to set a `type` for the port. This can be `internal` which means 
 ```
 sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$ -- set interface $PORT_NAME$ type=VXLAN options:remote_ip=$NEIGHBOR_IP$ ofport_request=$PORT_NUM$
 ```
-```
 
+```
 sudo ovs-vsctl add-port br_$NUM$ probe -- set interface probe type=internal ofport_request=$PORT_INT$
 ```
 Example:
@@ -160,6 +160,12 @@ Example:
 sudo ovs-vsctl add-port br_1 port_12 -- set interface port_12 type=VXLAN options:remote_ip=192.168.1.1 ofport_request=10
 ```
 
+```
+sudo ovs-vsctl add-port br_1 probe -- set interface probe type=internal ofport_request=1
+```
+
+Note, for internal ports like this probe, you will need to give it an IP and enable it using your ifconfig. You need to make it available to the network. 
 
 #### ovs-ofctl
+
 
