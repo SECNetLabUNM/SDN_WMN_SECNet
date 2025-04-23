@@ -37,4 +37,4 @@ The XYZ tuple contains the following, a request boolean condition indicating the
 
 `[True, {X, Y, Z}]`
 
-To help mitigate traffic, the data dictionary will be sent one way from the client to the GUI. The GUI will send a request tuple to the client indicating what tuple it wants to request from the individual client. This tuple will look like this, `[False, False]`. The first element is the neighbor tuple request status, and the second is the XYZ tuple request status. If either are true, the client 
+To help mitigate traffic, the data dictionary will be sent one way from the client to the GUI. The GUI will send a request tuple to the client indicating what tuple it wants to request from the individual client. This tuple will look like this, `[False, False]`. The first element is the neighbor tuple request status, and the second is the XYZ tuple request status. If either are true, the client will update the tuples from the data dictionary with the latest information. This tuple is the 
