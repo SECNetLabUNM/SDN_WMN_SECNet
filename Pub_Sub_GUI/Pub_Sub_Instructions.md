@@ -29,4 +29,7 @@ The neighbor tuple contains the following, a request boolean condition for when 
 
 [https://www.open-mesh.org/projects/batman-adv/wiki/BATMAN_IV](https://www.open-mesh.org/projects/batman-adv/wiki/BATMAN_IV)
 
-The client simply requests the TQ by using the `sudo batctl o` command and taking the row with the asterisks or the most ideal hops and TQ level determined by Batman IV.  We will only take the originator, the TQ itself which is from [0,255], and the next hop. Even though the originator and next hop are in MACs, we can still map them onto 
+The client simply requests the TQ by using the `sudo batctl o` command and taking the row with the asterisks or the most ideal hops and TQ level determined by Batman IV.  We will only take the originator, the TQ itself which is from [0,255], and the next hop. Even though the originator and next hop are in MACs, we can still map them with the host switch ID and IPs on the GUI side. A neighbor tuple can look like this:
+
+`[True, {Originator, LQ, Next Hop}]`
+
