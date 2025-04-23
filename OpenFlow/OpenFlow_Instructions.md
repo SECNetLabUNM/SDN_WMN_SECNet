@@ -2,13 +2,14 @@
 ## Controller Installation
 We ran the RYU SDN controller on our most powerful device with the best NIC available. We recommend you do the same.
 
-To run the controller, the minimum requirements for our test bed are `python 3.8.10` and `pip 20.0.2`. These are the python and pip3 versions we are using. Please create an environment that can run this python version. Below is our dependencies that are required for both the RYU controller.
+To run the controller, the minimum requirements for our test bed are `python 3.8.10` and `pip 20.0.2`. These are the python and pip3 versions we are using. Please create an environment that can run this python version. Below are our dependencies that are required for both the RYU controller.
 
 ```
 setuptools==44.0.0
 eventlet==0.30.2
 certifi==2023.7.22
 charset-normalizer==3.3.0
+customtkinter==5.2.2
 debtcollector==2.5.0
 dnspython==1.16.0
 eventlet==0.31.1
