@@ -16,8 +16,13 @@ python3 PubSubClient13.py
 
 ### Request Data
 The client will provide the GUI with the following data from the device:
+
 1. OpenFlow switch ID 
 2. Device MAC address
 3. Device IP address
 4. Neighbor tuple
 5. XYZ tuple
+
+The first three should be self explanatory with the switch ID coming from the RYU server itself. 
+
+The neighbor tuple will be the Batman IV transmission quality, aka, the link quality between each BATMAN device. Since multi-hop routing is enabled, we can also request 
