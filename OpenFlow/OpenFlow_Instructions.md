@@ -157,15 +157,17 @@ sudo ovs-vsctl add-port br_$NUM$ probe -- set interface probe type=internal ofpo
 ```
 Example:
 ```
-sudo ovs-vsctl add-port br_1 port_12 -- set interface port_12 type=VXLAN options:remote_ip=192.168.1.1 ofport_request=10
+sudo ovs-vsctl add-port br_0 port_01 -- set interface port_01 type=VXLAN options:remote_ip=192.168.1.1 ofport_request=10
 ```
 
 ```
-sudo ovs-vsctl add-port br_1 probe -- set interface probe type=internal ofport_request=1
+sudo ovs-vsctl add-port br_0 probe -- set interface probe type=internal ofport_request=1
 ```
 
 Note, for internal ports like this probe, you will need to give it an IP and enable it using your ifconfig. You need to make it available to the network. 
 
 #### ovs-ofctl
+We use `ovs-ofctl` as a switch end command to manually input and retrieve flow entries. This command is very useful for experimentation on the switch end. The full list of this command can be found here:
 
+[]()
 
