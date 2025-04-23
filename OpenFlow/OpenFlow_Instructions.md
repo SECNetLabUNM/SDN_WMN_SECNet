@@ -155,6 +155,7 @@ sudo ovs-vsctl add-port br_$NUM$ $PORT_NAME$ -- set interface $PORT_NAME$ type=V
 ```
 sudo ovs-vsctl add-port br_$NUM$ probe -- set interface probe type=internal ofport_request=$PORT_INT$
 ```
+
 Example:
 ```
 sudo ovs-vsctl add-port br_0 port_01 -- set interface port_01 type=VXLAN options:remote_ip=192.168.1.1 ofport_request=10
@@ -175,10 +176,17 @@ To check a flow entry, use this command:
 ```
 sudo ovs-ofctl -O OpenFlow$OF_Version$ dump-flows br_$NUM$
 ```
+
 Example:
 ```
 sudo ovs-ofctl -O OpenFlow13 dump-flows br_0
 ```
 
 You must specify the OpenFlow version such as 13 for 1.3 with a `-O` flag preceding it. `dump-flows` is the command to dump data plane entries. 
+
+To add a flow entry, use this command:
+```
+sudo ovs-ofctl -O OpenFlow$OF_Version$ add-flow br_$NUM$ "$Flow entry goes here$"
+```
+Note, during our research, we do not believe this command can be used to set the max priority level hidden flow entry that the controller and switches use to establish the control plane. It is mainly for data plane and LLDP matches. 
 
