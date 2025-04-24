@@ -59,6 +59,8 @@ The GUI will be activated like so:
 
 At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`. 
 
+ The top row will determine how you want your destinations to be displayed as. You can pick them by clicking on the `ID`, `MAC`, or `IP` buttons. They are also color coded accordingly to their colors. Note, I have only 
+
 
 After you run `PubSubClient13.py`, they should automatically join the GUI like.
 

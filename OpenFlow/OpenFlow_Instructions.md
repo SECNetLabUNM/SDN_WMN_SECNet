@@ -36,7 +36,8 @@ urllib3==2.0.6
 WebOb==1.8.7
 wrapt==1.15.0
 ```
-With these dependencies installed, the RYU controller can be installed by running:
+
+There is also a [requirements.txt](requirements.txt) provided. With these dependencies installed, the RYU controller can be installed by running:
 
 ```
 pip install ryu
@@ -125,6 +126,8 @@ sudo ovs-vsctl show
 4. This section is to make sure the OvS is using OpenFlow 1.3
 5. This section is to create the pseudo virtual machine in the form of an internal port. This port is a dummy and does nothing except act as a pseudo host device connected to the switch. `$PORT_INT$` will be your internal port number. We recommend something like 1 to keep it simple. `$PROBE_IP$` will be the IP of these dummy probes. These IPs will also be the IP you will be using to connect the virtual switches in section 2. We recommend making these IPs very different from the BATMAN ones.
 6. Confirmation to show that all commands are working. OpenvSwitch will print out the switch and its settings.
+
+There is also a provided bash script available as [ovssetup.sh](ovssetup.sh).
 
 If there are any errors, we recommend deleting the bridge and retrying the script. A device restart is recommended to clear any IP addresses used by the switch however the switch must be deleted first. 
 

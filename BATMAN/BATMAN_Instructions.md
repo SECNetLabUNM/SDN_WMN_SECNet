@@ -51,6 +51,9 @@ sleep 1s
 sudo ip addr add dev bat0 $IP_ADDRESS$
 sudo ip link set dev bat0 up
 ```
+
+There is an included bash script called [batsetup.sh](batsetup.sh).
+
 If there is an error message. Restart the device and then run the script line by line to figure out which part is giving the error. Run this script on all devices.
 ### Fill In the Details
 - `$NIC$` -  The name of your wireless interface the host is using
