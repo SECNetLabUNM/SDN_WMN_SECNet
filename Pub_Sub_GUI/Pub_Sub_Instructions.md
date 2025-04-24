@@ -9,6 +9,8 @@ pip install requests
 
 This code also requires the Rest API to be enabled controller side otherwise it will not be able to request some features.
 
+Before running the code, you must change the `server_ADDR` and `nic_name` globals at the top of the code.  Change the `server_ADDR` to the BATMAN IP of the GUI host machine and change the `nic_name` to the name of the NIC card the client device is using. It is `wlan0` for our Raspberry Pis.
+
 It is recommended to run this code after setting up BATMAN and the OpenvSwitches on your devices:
 ```
 python3 PubSubClient13.py
@@ -52,8 +54,11 @@ python3 PubSubGUI.py
 
 The GUI will be activated like so:
 
-![GUI_start.png](images/GUI_start.png)
+![GUI_start.png](../images/GUI_start.png)
 
 
-At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`.
+At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`. 
+
+
+After you run `PubSubClient13.py`, they should automatically join the GUI like.
 
