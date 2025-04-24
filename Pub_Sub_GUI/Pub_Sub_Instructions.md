@@ -67,4 +67,4 @@ The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `X
 
 ![My_GUI.png](../images/My_GUI.png)
 
-You can click on either of the `Requests`, it will pause the constant update of data on that metric. Note, the paused information will stay for each destinations so you can your data saved on the screen while switching between clients.
+You can click on either of the `Requests`, it will pause the constant update of data on that metric, this freezing the data. Note, the paused data will stay for that destination regardless if you select another destination or are requesting data at another destination. This means you can your data saved on the screen while switching between clients. To ful
