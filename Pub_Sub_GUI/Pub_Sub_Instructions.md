@@ -52,7 +52,7 @@ python3 PubSubGUI.py
 
 The GUI will be activated like so:
 
-![Diagram](images/GUI_start.png)
+![GUI_start.png](images/GUI_start.png)
 
 
 At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`.
