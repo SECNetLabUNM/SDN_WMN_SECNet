@@ -38,7 +38,9 @@ wrapt==1.15.0
 ```
 With these dependencies installed, the RYU controller can be installed by running:
 
-`pip install ryu`
+```
+pip install ryu
+```
 
 Next, you must download the RYU GitHub provided below. 
 
