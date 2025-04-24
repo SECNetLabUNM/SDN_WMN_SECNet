@@ -59,7 +59,10 @@ The GUI will be activated like so:
 
 At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`. 
 
- The top row will determine how you want your destinations to be displayed as. You can pick them by clicking on the `ID`, `MAC`, or `IP` buttons. They are also color coded accordingly to their colors. Note, I have only 
+ The top row will determine what type your destinations are displayed as. You can pick them by clicking on the `ID`, `MAC`, or `IP` buttons. Note for the `server` or the machine that is hosting the GUI, it will not have an OpenFlow switch ID and will instead just be `SERVER`. The reason is because we did not have the GUI host device running OpenvSwitch as we had it on the same machine as the RYU controller. 
+ 
+ They are also color coded accordingly to their colors. Note, I have only 25 different colors. So, this code as of now can only handle up to 25 `PubSubClient13` and will error out if there are more hosts. Please include more colors in the `color_list` global if you want to modify this code to accommodate more destinations.
+
 
 
 After you run `PubSubClient13.py`, they should automatically join the GUI like.
