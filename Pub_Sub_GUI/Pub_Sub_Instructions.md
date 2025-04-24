@@ -47,6 +47,8 @@ This GUI code is ran on only one device which we recommend to be the same as the
 pip install customtkinter
 ```
 
+Before running the GUI, you must change the `server_ADDR` and the `nic_name` global variables located at the top. Change `server_ADDR` to the BATMAN address of the device hosting the GUI and the `nic_name` to the NIC of that device. 
+
 To run the GUI, use this:
 ```
 python3 PubSubGUI.py
@@ -67,4 +69,4 @@ The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `X
 
 ![My_GUI.png](../images/My_GUI.png)
 
-You can click on either of the `Requests`, it will pause the constant update of data on that metric, this freezing the data. Note, the paused data will stay for that destination regardless if you select another destination or are requesting data at another destination. This means you can your data saved on the screen while switching between clients. To ful
+You can click on either of the `Requests`, it will pause the constant update of data on that metric, this freezing the data. Note, the paused data will stay for that destination regardless if you select another destination or are requesting data at another destination. This means you can your data saved on the screen while switching between clients. To clear this data, use the `Clear` button. 
