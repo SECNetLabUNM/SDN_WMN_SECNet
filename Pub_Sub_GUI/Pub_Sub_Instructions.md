@@ -57,15 +57,14 @@ The GUI will be activated like so:
 ![GUI_start.png](../images/GUI_start.png)
 
 
-At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`. 
+At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device running `PubSubClient13.py`. When you start `PubSubClient13.py` on the OpenvSwitch devices, they will automatically join the GUI and will fill the `Switches / Destinations` column. 
 
  The top row will determine what type your destinations are displayed as. You can pick them by clicking on the `ID`, `MAC`, or `IP` buttons. Note for the `server` or the machine that is hosting the GUI, it will not have an OpenFlow switch ID and will instead just be `SERVER`. The reason is because we did not have the GUI host device running OpenvSwitch as we had it on the same machine as the RYU controller. 
  
  The top row are also color coded accordingly to their destinations. Note, we only provided 25 different colors. So, this code can only handle up to 25 `PubSubClient13` and will error out if there are more hosts. Please include more colors in the `color_list` global if you want to modify this code to accommodate more destinations.
 
-The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `XYZ` or drone location, metrics. The first is the `Requests` buttons. Upon first join, the `Requests` will be red, signalling that the user has not requested either the `neighbors` or `XYZ` metrics. There is also an status indicator on the third column showing this. Upon clicking one of the `Requests`, it will turn green indicating a request have been made. Below is what this will look like with additional clients:
+The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `XYZ` or drone location, metrics. The first is the `Requests` buttons. Upon first join, the `Requests` will be red, signalling that the user has not requested either the `neighbors` or `XYZ` metrics. There is also an status indicator on the third column showing this. Upon clicking one of the `Requests`, it will turn green indicating a request have been made. Data will now begin updating on your `neighbors` or `XYZ` metrics and will continue to do so every 3 seconds. Below is what this will look like with additional clients:
 
 ![My_GUI.png](../images/My_GUI.png)
 
-After you run `PubSubClient13.py`, they should automatically join the GUI like.
-
+You can click on either of the `Requests`, it will pause the constant update of data on that metric. Note, the paused information will stay between destinations so y
