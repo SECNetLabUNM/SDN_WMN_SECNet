@@ -61,9 +61,9 @@ At the start, the GUI will always have one host, which will be the computer host
 
  The top row will determine what type your destinations are displayed as. You can pick them by clicking on the `ID`, `MAC`, or `IP` buttons. Note for the `server` or the machine that is hosting the GUI, it will not have an OpenFlow switch ID and will instead just be `SERVER`. The reason is because we did not have the GUI host device running OpenvSwitch as we had it on the same machine as the RYU controller. 
  
- They are also color coded accordingly to their colors. Note, I have only 25 different colors. So, this code as of now can only handle up to 25 `PubSubClient13` and will error out if there are more hosts. Please include more colors in the `color_list` global if you want to modify this code to accommodate more destinations.
+ The top row are also color coded accordingly to their destinations. Note, we only provided 25 different colors. So, this code can only handle up to 25 `PubSubClient13` and will error out if there are more hosts. Please include more colors in the `color_list` global if you want to modify this code to accommodate more destinations.
 
-
+The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `XYZ` or drone location, metrics. The first is the `Requests` buttons. Upon first join, the `Requests` will be red, signalling that the user has not requested either the `neighbors` or `XYZ` metrics. There is also an status indicator on the third column showing this. Upon click
 
 After you run `PubSubClient13.py`, they should automatically join the GUI like.
 
