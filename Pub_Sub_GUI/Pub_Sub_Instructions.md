@@ -63,7 +63,9 @@ At the start, the GUI will always have one host, which will be the computer host
  
  The top row are also color coded accordingly to their destinations. Note, we only provided 25 different colors. So, this code can only handle up to 25 `PubSubClient13` and will error out if there are more hosts. Please include more colors in the `color_list` global if you want to modify this code to accommodate more destinations.
 
-The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `XYZ` or drone location, metrics. The first is the `Requests` buttons. Upon first join, the `Requests` will be red, signalling that the user has not requested either the `neighbors` or `XYZ` metrics. There is also an status indicator on the third column showing this. Upon click
+The GUI has two buttons dedicated to the `neighbors` or the Batman IV TQ, and `XYZ` or drone location, metrics. The first is the `Requests` buttons. Upon first join, the `Requests` will be red, signalling that the user has not requested either the `neighbors` or `XYZ` metrics. There is also an status indicator on the third column showing this. Upon clicking one of the `Requests`, it will turn green indicating a request have been made. Below is what this will look like with additional clients:
+
+![My_GUI.png](../images/My_GUI.png)
 
 After you run `PubSubClient13.py`, they should automatically join the GUI like.
 
