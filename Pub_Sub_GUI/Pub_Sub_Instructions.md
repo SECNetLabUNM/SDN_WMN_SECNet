@@ -9,7 +9,7 @@ pip install requests
 
 This code also requires the Rest API to be enabled controller side otherwise it will not be able to request some features.
 
-To run this, simply do:
+To run this code, simply do:
 ```
 python3 PubSubClient13.py
 ```
@@ -44,4 +44,11 @@ This GUI code is ran on only one device which we recommend to be the same as the
 ```
 pip install customtkinter
 ```
+
+To run the GUI, use this:
+```
+python3 PubSubGUI.py
+```
+
+The GUI will be activated like so:
 
