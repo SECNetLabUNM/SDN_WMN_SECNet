@@ -9,7 +9,7 @@ pip install requests
 
 This code also requires the Rest API to be enabled controller side otherwise it will not be able to request some features.
 
-To run this code, simply do:
+It is recommended to run this code after setting up BATMAN and 
 ```
 python3 PubSubClient13.py
 ```
@@ -51,4 +51,6 @@ python3 PubSubGUI.py
 ```
 
 The GUI will be activated like so:
+![Diagram](images/GUI_start.png)
 
+At the start, the GUI will always have one host, which will be the computer hosting the GUI itself. Because this computer is still a BATMAN enabled host, we should still be able to retrieve its TQ information and its location data. This is what the GUI looks like with no other OpenvSwitch device.
