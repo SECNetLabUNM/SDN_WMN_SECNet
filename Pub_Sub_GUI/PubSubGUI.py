@@ -9,9 +9,10 @@ import subprocess
 
 '''
 Code sections are labeled in parts. Please start at 
-Part I and then make your way to Part III.
+Part I and then make your way to Part VI.
 '''
 
+# Function used for extracting the MAC address of the GUI host device
 def retrieve_client_MAC():
     try:
         output = subprocess.run(["ifconfig", nic_name],
@@ -32,15 +33,19 @@ def retrieve_client_MAC():
         print(f"Error trying to get the MAC: {e}")
         return None
 
+# Randomizer used as a substitute for actual drone coordinate
 def gen_random_number(flr, ceil):
     return random.randint(flr, ceil)
 
-
+# TODO: you need to modify these values to your host device BATMAN addr and NIC
 server_ADDR = "100.100.1.5"
 nic_name = "wlp2s0"
+# You can keep this. If you modify the port, make sure the client code are changed
+# aswell
 server_PORT = 9559
 server_MAC = retrieve_client_MAC()
 
+# Themes
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("green")
 theme_green = "#2ca373"
@@ -59,6 +64,7 @@ color_list = [
     "AntiqueWhite4", "NavajoWhite4", "LightGoldenrod4", "burlywood4", "brown4",
     "maroon4", "plum4", "gray1", "gray15", "gray60"
 ]
+
 # Part V: this class is the neighbor frame that hosts all the widgets that
 # can be added or subtracted
 class NeighborTextScrollFrame(ctk.CTkScrollableFrame):
