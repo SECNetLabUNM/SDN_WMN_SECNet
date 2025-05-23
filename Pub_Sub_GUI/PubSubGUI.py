@@ -9,7 +9,8 @@ import subprocess
 
 '''
 Code sections are labeled in parts. Please start at 
-Part I and then make your way to Part VI.
+Part I and then make your way to Part VI. You will need 
+sudo access to run this GUI b/c of retrieving BATMAN data
 '''
 
 # Function used for extracting the MAC address of the GUI host device
@@ -628,7 +629,7 @@ class DataFrame(ctk.CTkFrame):
         self.text_neighbors_Next_Hop.clear_all_data()
         self.text_neighbors_LQ.clear_all_data()
 
-    # Part III.H: this method is used for clearing data but it's for the button
+    # Part III.H: this method is used for clearing data, but it's for the button
     def clear_all_neighbor_data(self):
         self.text_neighbors_Origin.clear_all_data()
         self.text_neighbors_Next_Hop.clear_all_data()
@@ -783,8 +784,8 @@ class SwitchFrame(ctk.CTkScrollableFrame):
                                           self._client_dct,
                                           f_clk)
 
-    # Part II.B: This method adds newly arrived clients and creates a button
-    # It uses dictionaries to quickly search for the ID.
+    # Part II.B: Nier automoata. This method adds newly arrived clients
+    # and creates a button. It uses dictionaries to quickly search for the ID.
     def add_client_button(self, c_dict):
         global Type_Change
         global MAC_2_IP_ID_CLR
