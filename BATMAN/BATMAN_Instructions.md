@@ -5,6 +5,8 @@ The official BATMAN documentation can be referenced here:
 
 [https://www.open-mesh.org/projects/batman-adv/wiki](https://www.open-mesh.org/projects/batman-adv/wiki)
 
+#### IMPORTANT: YOU WILL NEED SUDO ACCESS TO DO EVERYTHING BATMAN RELATED!!!
+
 ## Installation of BATMAN
 On a terminal, run:
 <pre>

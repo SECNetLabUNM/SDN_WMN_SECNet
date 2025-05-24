@@ -83,7 +83,7 @@ The official OpenvSwitch can be found here:
 
 [https://docs.openvswitch.org/en/latest/](https://docs.openvswitch.org/en/latest/)
 
-##### IMPORTANT: YOU WILL NEED SUDO ACCESS TO RUN BOTH THE CLIENT AND GUI!!!
+#### IMPORTANT: YOU WILL NEED SUDO ACCESS TO DO EVERYTHING OPENVSWITCH RELATED!!!
 
 We ran our OpenvSwitches on our Raspberry Pis. To install OpenvSwitch, use the following command:
 ```
