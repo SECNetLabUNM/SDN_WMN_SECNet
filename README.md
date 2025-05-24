@@ -18,7 +18,8 @@ We used the Dell XPS 15 9560. This laptop will be hosting the SDN controller, th
 These devices were chosen because they can the following: Python 3.8, a version crucial for the Ryu SDN controller; OpenFlow 1.3 and OpenvSwitch; Batman IV and Batman V routing algorithms.
 
 ## Recreating This Project
-#### SUDO ACCESS 
+#### SUDO ACCESS IS MANDATORY FOR RECREATING THIS PROJECT!!!
+
 To recreate this project, we recommend starting from these folders:
 
 1. BATMAN
