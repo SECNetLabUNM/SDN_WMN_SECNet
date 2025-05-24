@@ -26,7 +26,7 @@ After downloading BATMAN. Use this script and instructions courtesy of this Redd
 
 We really recommend reading this article for extra details in case something goes wrong following this setup.
 
-You MUST be disconnected from the Wi-Fi and have your NIC disabled before using this script. It is recommended to disable your NIC then restart your device, then run this script. This script will run on all devices.
+You MUST be disconnected from the Wi-Fi and have your NIC disabled before using this script. It is recommended to disable your NIC then restart your device. With your NIC still off, run this script. This script will run on all devices such as the SDN switch host device and the SDN server device.
 ```
 # 0. Checks for BATMAN availability
 sudo modprobe batman-adv
