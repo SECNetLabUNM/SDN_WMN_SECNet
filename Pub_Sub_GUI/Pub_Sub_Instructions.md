@@ -1,6 +1,8 @@
 # Pub/Sub GUI Instructions
 This graphical user interface, `PubSubGUI.py`, is used for requesting or subscribing data from each OpenvSwitch host. To provide data, there is client code called `PubSubClient13.py` that must run on each OpenvSwitch host. It will be implemented as a client-server approach where the GUI will act as the centralized server and should be ran on the same device as the RYU controller device. 
+##### IMPORTANT: YOU WILL NEED SUDO ACCESS TO RUN BOTH THE CLIENT AND GUI!!!
 
+The reason why is because BATMAN and OVS commands need them.
 ## [PubSubClient13.py](PubSubClient13.py)
 The client code is ran on each OpenvSwitch device. For our test bed, each Raspberry Pi will be running this code. It will require python's `requests` to be installed. It should already be available in the requirements in the [OpenFlow folder](../OpenFlow/OpenFlow_Instructions.md) but here is the download command if you want to install independently. 
 ```
@@ -13,7 +15,7 @@ Before running the code, you must change the `server_ADDR` and `nic_name` global
 
 It is recommended to run this code after setting up BATMAN and the OpenvSwitches on your devices:
 ```
-python3 PubSubClient13.py
+sudo python3 PubSubClient13.py
 ```
 
 ### Request Data
@@ -51,7 +53,7 @@ Before running the GUI, you must change the `server_ADDR` and the `nic_name` glo
 
 To run the GUI, use this:
 ```
-python3 PubSubGUI.py
+sudo python3 PubSubGUI.py
 ```
 
 The GUI will be activated like so:
