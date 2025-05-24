@@ -6,7 +6,7 @@ import subprocess
 import requests
 
 # TODO: you need to modify these values to your host device BATMAN addr and NIC
-server_ADDR = "100.100.1.5"
+server_ADDR = "192.168.1.112"
 server_PORT = 9559
 # IMPORTANT: set the NIC that B.A.T.M.A.N is using here
 nic_name = "wlp2s0"
@@ -27,7 +27,7 @@ class ClientHandler:
         self._mac = self.retrieve_client_MAC()
         self._ip = self.retrieve_client_IP()
         self.device_id = self.retrieve_client_ID()
-
+        
         # This is the main dictionary packet
         self.device_info = {
             "ID": self.device_id,
@@ -55,7 +55,7 @@ class ClientHandler:
                 if line.lstrip().startswith("inet"):
                     # Divide all words into an array
                     elements = line.split()
-                    if len(elements) >= 2:
+                    if len(elements) >= 1:
                         # The IP should be the first element after inet
                         IP = elements[1]
                         break
@@ -84,7 +84,7 @@ class ClientHandler:
                 if line.lstrip().startswith("ether"):
                     # Divide all words into an array
                     elements = line.split()
-                    if len(elements) >= 2:
+                    if len(elements) >= 1:
                         # The MAC should be the first element after ether
                         mac = elements[1]
                         break
@@ -96,7 +96,8 @@ class ClientHandler:
             return None
 
     # Part I.D: This method is used to retrieve the switch ID. It utilized the REST API.
-    # NOTE: the controller must already be running in order for this method to work
+    # NOTE: the controller must already be running in order for this method to work. This
+    # should also be run once
     def retrieve_client_ID(self):
         br = ""
 
@@ -128,12 +129,13 @@ class ClientHandler:
             print(f"Error in getting the bridge: {e}")
 
         # In order to get the ID of the switch, we will need to make
-        # a dummy table entry with the MAC used for identification
-        command = f"sudo ovs-ofctl -O OpenFlow13 add-flow {br} 'table=99, priority=0, mac, dl_src={self._mac}, actions=drop"
+        # a dummy table entry with the MAC used for identification.
+        # We use table 99 and priority 0 so we can have as little impact as possible
+        enter_command = f"sudo ovs-ofctl -O OpenFlow13 add-flow {br} 'table=99, priority=0, dl_src={self._mac}, actions=drop'"
 
         try:
             # running the command for the dummy table
-            subprocess.run(command, shell=True, check=True)
+            subprocess.run(enter_command, shell=True, check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to add flow: {str(e)}")
 
@@ -146,21 +148,41 @@ class ClientHandler:
         switches = response_.json()
 
         switchID = 0
+        found = False
 
         # search the list of ID's for the mac
         for sw in switches:
+            # this REST command dumps all the flow entries using the ID
             url = f'http://{server_ADDR}:8080/stats/flow/{sw}'
             response = requests.get(url)
 
-            flows = response.json()
-            switch_id = list(flows.keys())[0]
-            for flow in flows[switch_id]:
+            # output as a dictionary. ['id': [content]]
+            out = response.json()
+            # using the content of the dictionary. [content]
+            flow_entry = out[str(sw)]
+            # looping through the entry lists
+            for flow in flow_entry:
+                # look for table id 99
                 if flow['table_id'] == 99:
-                    match = flow.get('match', {})
-                    dl_src = match.get('dl_src')
-                    if dl_src and dl_src == self._mac:
-                        switchID = switch_id
+                    # looking for the MAC address, compare the MAC address with the
+                    # current device MAC
+                    if flow['match']['dl_src'] == self._mac:
+                        # if there's a match, we found the switch ID
+                        switchID = sw
+                        found = True
                         break
+
+            if found:
+                break
+
+        # delete the temporary flow entry
+        delete_command = f"sudo ovs-ofctl -O OpenFlow13 del-flows {br} 'table=99'"
+
+        try:
+            # running the command for the dummy table
+            subprocess.run(delete_command, shell=True, check=True)
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to add flow: {str(e)}")
 
         return switchID
 
@@ -254,6 +276,7 @@ class ClientHandler:
     # Part II.A: This method is used to communicate with the controller.
     def connection(self):
         first_connection = True
+        after_first_connect = False
         while True:
             # create a socket object, this is for reconnection purposes
             # incase something goes wrong, we will try to reconnect to the controller
@@ -264,9 +287,7 @@ class ClientHandler:
                 while True:
                     # upon the first connection, the server will not
                     # send anything. We make sure to cycle through the first connection
-                    if first_connection:
-                        first_connection = False
-                    else:
+                    if after_first_connect:
                         # checking the data we receive
                         data = client_socket.recv(1024)
                         if data:
@@ -279,6 +300,8 @@ class ClientHandler:
 
                             # make response dictionary for the controller
                             self.make_device(condition_neighbors, condition_XYZ)
+                    else:
+                        after_first_connect = True
 
                     # TODO: Optimize this to make it only send the TUPLES. The other datas should be static
                     # TODO: do not troll and try to actually do this
