@@ -275,7 +275,6 @@ class ClientHandler:
 
     # Part II.A: This method is used to communicate with the controller.
     def connection(self):
-        first_connection = True
         after_first_connect = False
         while True:
             # create a socket object, this is for reconnection purposes
